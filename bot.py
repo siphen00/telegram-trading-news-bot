@@ -1,47 +1,65 @@
-import os
-import time
+import feedparser
 import requests
-from telegram import Bot
+import os
 
-# Config from Environment Variables
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHANNEL = os.getenv("CHANNEL_ID")
-API_KEY = os.getenv("ALPHA_KEY")
-bot = Bot(token=TOKEN)
+# Telegram setup from GitHub Secrets
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
-# Assets: BTC, QQQ (Nasdaq), and GOLD
-TICKERS = "CRYPTO:BTC,QQQ,GOLD"
+# RSS / API sources (same as your current bot)
+FEEDS = [
+    "https://financialjuice.com/rss",
+    "https://www.forexlive.com/rss",
+    "https://www.investing.com/rss/news.rss",
+    "https://www.reuters.com/rssFeed/marketsNews",
+    "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    "https://cryptopanic.com/api/v1/posts/?auth_token=" + os.getenv("CRYPTOPANIC_TOKEN"),
+    "https://www.aljazeera.com/xml/rss/all.xml"
+]
 
-def fetch_and_post():
-    # Topics include Economy/Macro and Financial Markets
-    url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={TICKERS}&topics=economy_macro,financial_markets&sort=LATEST&apikey={API_KEY}"
-    
-    try:
+# Updated keywords filter
+KEYWORDS = [
+    "Fed","CPI","inflation","interest rate","NFP","ECB","BoJ","recession","liquidity",
+    "bitcoin","BTC","ETH","crypto","ETF",
+    "gold","XAU","oil","WTI","Nasdaq","NQ",
+    "China","Russia","Ukraine","Middle East","war","sanctions","missile",
+    # NEW additions
+    "Trump","breaking news","election","politics","US","White House"
+]
+
+# Track sent headlines to avoid duplicates
+SENT_FILE = "sent_headlines.txt"
+try:
+    with open(SENT_FILE, "r") as f:
+        sent_headlines = set(f.read().splitlines())
+except FileNotFoundError:
+    sent_headlines = set()
+
+def send_telegram(message):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    requests.post(url, data={"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"})
+
+def fetch_feed(url):
+    if "cryptopanic.com" in url:
         data = requests.get(url).json()
-        feed = data.get("feed", [])
-        
-        for item in feed[:3]:  # Top 3 latest high-impact news
-            # High Trust Filter: Check for keywords like 'War', 'Fed', 'CPI', 'Conflict'
-            important_keywords = ['war', 'conflict', 'fed', 'cpi', 'rates', 'geopolitical']
-            text_to_check = (item['title'] + item['summary']).lower()
-            
-            is_priority = any(word in text_to_check for word in important_keywords)
-            prefix = "🔥 *URGENT MACRO*" if is_priority else "📈 *MARKET UPDATE*"
+        for post in data.get("results", []):
+            title = post.get("title")
+            if title and any(k.lower() in title.lower() for k in KEYWORDS):
+                if title not in sent_headlines:
+                    send_telegram(f"📢 {title}\n{post.get('url')}")
+                    sent_headlines.add(title)
+    else:
+        feed = feedparser.parse(url)
+        for entry in feed.entries:
+            title = entry.get("title")
+            link = entry.get("link")
+            if title and any(k.lower() in title.lower() for k in KEYWORDS):
+                if title not in sent_headlines:
+                    send_telegram(f"📢 {title}\n{link}")
+                    sent_headlines.add(title)
 
-            message = (
-                f"{prefix}\n\n"
-                f"📌 *{item['title']}*\n\n"
-                f"📊 *Sentiment:* {item['overall_sentiment_label']}\n"
-                f"🔗 [Read Source]({item['url']})"
-            )
-            
-            bot.send_message(chat_id=CHANNEL, text=message, parse_mode='Markdown')
-            time.sleep(5) # Prevent spamming
-            
-    except Exception as e:
-        print(f"Error fetching data: {e}")
+for feed_url in FEEDS:
+    fetch_feed(feed_url)
 
-if __name__ == "__main__":
-    while True:
-        fetch_and_post()
-        time.sleep(600) # Check every 10 minutes (to respect free API limits)
+with open(SENT_FILE, "w") as f:
+    f.write("\n".join(sent_headlines))
