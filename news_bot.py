@@ -1,9 +1,12 @@
 import feedparser
 import requests
 import os
+import json
 
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
+
+STATE_FILE = "sent_links.json"
 
 feeds = {
 
@@ -11,8 +14,7 @@ feeds = {
 [
 "https://www.reuters.com/markets/rss",
 "https://feeds.marketwatch.com/marketwatch/topstories/",
-"https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
-"https://www.ft.com/world?format=rss"
+"https://feeds.a.dj.com/rss/RSSMarketsMain.xml"
 ],
 
 "📊 HIGH IMPACT ECONOMIC DATA":
@@ -29,6 +31,11 @@ feeds = {
 [
 "https://cointelegraph.com/rss",
 "https://www.coindesk.com/arc/outboundfeeds/rss/"
+],
+
+"💥 BTC LIQUIDATIONS":
+[
+"https://cryptopanic.com/news/rss/"
 ]
 
 }
@@ -41,35 +48,42 @@ HIGH_IMPACT_KEYWORDS = [
 "interest rate",
 "Federal Reserve",
 "Powell",
-"ECB",
 "inflation",
 "GDP",
 "PMI",
 "bond yields",
-"treasury yields",
 "DXY",
-"dollar strength",
 "war",
-"missile",
 "attack",
 "sanctions",
-"oil spike",
-"Middle East",
-"Russia",
-"China",
-"Taiwan",
-"Ukraine",
-"Israel",
-"ETF inflows",
-"Bitcoin ETF",
 "liquidation",
-"Nasdaq",
-"gold prices",
-"AI stocks"
+"liquidations",
+"Bitcoin ETF",
+"ETF inflows"
 
 ]
 
-sent_links = set()
+
+def load_sent_links():
+
+    if os.path.exists(STATE_FILE):
+
+        with open(STATE_FILE, "r") as f:
+
+            return set(json.load(f))
+
+    return set()
+
+
+def save_sent_links(links):
+
+    with open(STATE_FILE, "w") as f:
+
+        json.dump(list(links), f)
+
+
+sent_links = load_sent_links()
+
 
 for category in feeds:
 
@@ -77,7 +91,7 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:4]:
+        for entry in feed.entries[:5]:
 
             title = entry.title
 
@@ -104,3 +118,6 @@ for category in feeds:
                     )
 
                     sent_links.add(entry.link)
+
+
+save_sent_links(sent_links)
