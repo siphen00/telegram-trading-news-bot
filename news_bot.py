@@ -2,64 +2,105 @@ import feedparser
 import requests
 import os
 
-# Telegram setup from GitHub Secrets
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+TOKEN = os.environ["BOT_TOKEN"]
+CHANNEL_ID = os.environ["CHANNEL_ID"]
 
-# RSS / API sources (same as your current bot)
-FEEDS = [
-    "https://financialjuice.com/rss",
-    "https://www.forexlive.com/rss",
-    "https://www.investing.com/rss/news.rss",
-    "https://www.reuters.com/rssFeed/marketsNews",
-    "https://www.coindesk.com/arc/outboundfeeds/rss/",
-    "https://cryptopanic.com/api/v1/posts/?auth_token=" + os.getenv("CRYPTOPANIC_TOKEN"),
-    "https://www.aljazeera.com/xml/rss/all.xml"
+feeds = {
+
+"🚨 MACRO BREAKING":
+[
+"https://www.reuters.com/markets/rss",
+"https://feeds.marketwatch.com/marketwatch/topstories/",
+"https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+"https://www.ft.com/world?format=rss"
+],
+
+"📊 HIGH IMPACT ECONOMIC DATA":
+[
+"https://www.investing.com/rss/news_25.rss"
+],
+
+"🌍 GEOPOLITICS":
+[
+"https://feeds.bbci.co.uk/news/world/rss.xml"
+],
+
+"₿ CRYPTO MARKET MOVERS":
+[
+"https://cointelegraph.com/rss",
+"https://www.coindesk.com/arc/outboundfeeds/rss/"
 ]
 
-# Updated keywords filter
-KEYWORDS = [
-    "Fed","CPI","inflation","interest rate","NFP","ECB","BoJ","recession","liquidity",
-    "bitcoin","BTC","ETH","crypto","ETF",
-    "gold","XAU","oil","WTI","Nasdaq","NQ",
-    "China","Russia","Ukraine","Middle East","war","sanctions","missile",
-    # NEW additions
-    "Trump","breaking news","election","politics","US","White House"
+}
+
+HIGH_IMPACT_KEYWORDS = [
+
+"CPI",
+"NFP",
+"FOMC",
+"interest rate",
+"Federal Reserve",
+"Powell",
+"ECB",
+"inflation",
+"GDP",
+"PMI",
+"bond yields",
+"treasury yields",
+"DXY",
+"dollar strength",
+"war",
+"missile",
+"attack",
+"sanctions",
+"oil spike",
+"Middle East",
+"Russia",
+"China",
+"Taiwan",
+"Ukraine",
+"Israel",
+"ETF inflows",
+"Bitcoin ETF",
+"liquidation",
+"Nasdaq",
+"gold prices",
+"AI stocks"
+
 ]
 
-# Track sent headlines to avoid duplicates
-SENT_FILE = "sent_headlines.txt"
-try:
-    with open(SENT_FILE, "r") as f:
-        sent_headlines = set(f.read().splitlines())
-except FileNotFoundError:
-    sent_headlines = set()
+sent_links = set()
 
-def send_telegram(message):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    requests.post(url, data={"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"})
+for category in feeds:
 
-def fetch_feed(url):
-    if "cryptopanic.com" in url:
-        data = requests.get(url).json()
-        for post in data.get("results", []):
-            title = post.get("title")
-            if title and any(k.lower() in title.lower() for k in KEYWORDS):
-                if title not in sent_headlines:
-                    send_telegram(f"📢 {title}\n{post.get('url')}")
-                    sent_headlines.add(title)
-    else:
+    for url in feeds[category]:
+
         feed = feedparser.parse(url)
-        for entry in feed.entries:
-            title = entry.get("title")
-            link = entry.get("link")
-            if title and any(k.lower() in title.lower() for k in KEYWORDS):
-                if title not in sent_headlines:
-                    send_telegram(f"📢 {title}\n{link}")
-                    sent_headlines.add(title)
 
-for feed_url in FEEDS:
-    fetch_feed(feed_url)
+        for entry in feed.entries[:4]:
 
-with open(SENT_FILE, "w") as f:
-    f.write("\n".join(sent_headlines))
+            title = entry.title
+
+            if any(keyword.lower() in title.lower() for keyword in HIGH_IMPACT_KEYWORDS):
+
+                if entry.link not in sent_links:
+
+                    message = f"""
+{category}
+
+🚨 MARKET MOVING ALERT
+
+{title}
+
+{entry.link}
+"""
+
+                    requests.post(
+                        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+                        data={
+                            "chat_id": CHANNEL_ID,
+                            "text": message
+                        }
+                    )
+
+                    sent_links.add(entry.link)
