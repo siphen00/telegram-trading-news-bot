@@ -8,24 +8,23 @@ CHANNEL_ID = os.environ["CHANNEL_ID"]
 
 STATE_FILE = "sent_links.json"
 
+
 feeds = {
 
 "🌍 GEOPOLITICAL BREAKING":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://www.reuters.com/world/rss",
 "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
 ],
 
-"🚨 MACRO MARKET MOVERS":
-[
-"https://www.reuters.com/markets/rss",
-"https://feeds.marketwatch.com/marketwatch/topstories/"
-],
-
-"📊 HIGH IMPACT ECONOMIC DATA":
+"📊 MACRO DATA RELEASES":
 [
 "https://www.investing.com/rss/news_25.rss"
+],
+
+"🏦 CENTRAL BANK / FED":
+[
+"https://feeds.marketwatch.com/marketwatch/topstories/"
 ],
 
 "💥 BTC LIQUIDATIONS":
@@ -35,47 +34,56 @@ feeds = {
 
 }
 
+
 HIGH_IMPACT_KEYWORDS = [
 
-# US / Iran focus
+# RED FOLDER DATA
+"CPI",
+"NFP",
+"FOMC",
+"PCE",
+"GDP",
+"PMI",
+"Retail Sales",
+"jobless claims",
+"inflation",
+"interest rate",
+"Federal Reserve",
+
+# TRUMP
+"Trump",
+
+# US–IRAN FOCUS
 "Iran",
-"United States",
 "Pentagon",
-"missile",
 "airstrike",
-"naval",
-"sanctions",
+"missile",
 "Hormuz",
 "Persian Gulf",
+"sanctions",
 
-# broader geopolitics
+# GLOBAL WAR SIGNALS
 "Israel",
 "Hamas",
 "Russia",
 "Ukraine",
 "China",
 "Taiwan",
-"war",
-"attack",
 "military",
 "conflict",
+"attack",
+"war",
 
-# macro volatility triggers
-"CPI",
-"NFP",
-"FOMC",
-"interest rate",
-"Federal Reserve",
-"Powell",
-"inflation",
+# MARKET SHOCK SIGNALS
 "bond yields",
 "DXY",
+"oil spike",
+"crude surge",
 
-# crypto liquidation signals
+# CRYPTO VOLATILITY
 "liquidation",
-"liquidations",
-"short squeeze",
-"long squeeze"
+"long squeeze",
+"short squeeze"
 
 ]
 
@@ -107,7 +115,7 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:5]:
+        for entry in feed.entries[:6]:
 
             title = entry.title
 
@@ -118,7 +126,7 @@ for category in feeds:
                     message = f"""
 {category}
 
-🚨 HIGH-IMPACT ALERT
+🚨 HIGH-IMPACT BREAKING NEWS
 
 {title}
 
