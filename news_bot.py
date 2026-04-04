@@ -14,7 +14,8 @@ feeds = {
 "🌍 GEOPOLITICAL BREAKING":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+"https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+"https://www.reuters.com/world/rss"
 ],
 
 "📊 MACRO DATA RELEASES":
@@ -22,9 +23,10 @@ feeds = {
 "https://www.investing.com/rss/news_25.rss"
 ],
 
-"🏦 CENTRAL BANK / FED":
+"🛢 OIL MARKET SHOCK ALERTS":
 [
-"https://feeds.marketwatch.com/marketwatch/topstories/"
+"https://feeds.marketwatch.com/marketwatch/topstories/",
+"https://www.reuters.com/markets/commodities/rss"
 ],
 
 "💥 BTC LIQUIDATIONS":
@@ -50,17 +52,33 @@ HIGH_IMPACT_KEYWORDS = [
 "interest rate",
 "Federal Reserve",
 
-# TRUMP
+# TRUMP SIGNALS
 "Trump",
 
-# US–IRAN FOCUS
+# US–IRAN SIGNALS
 "Iran",
 "Pentagon",
 "airstrike",
 "missile",
-"Hormuz",
+"naval",
 "Persian Gulf",
+"Hormuz",
 "sanctions",
+"IRGC",
+
+# STRAIT OF HORMUZ ALERTS
+"Strait of Hormuz",
+"oil tanker",
+"shipping disruption",
+"naval deployment",
+
+# OIL SHOCK DETECTION
+"oil spike",
+"crude surge",
+"Brent jumps",
+"energy disruption",
+"supply disruption",
+"pipeline attack",
 
 # GLOBAL WAR SIGNALS
 "Israel",
@@ -77,8 +95,7 @@ HIGH_IMPACT_KEYWORDS = [
 # MARKET SHOCK SIGNALS
 "bond yields",
 "DXY",
-"oil spike",
-"crude surge",
+"crude jumps",
 
 # CRYPTO VOLATILITY
 "liquidation",
