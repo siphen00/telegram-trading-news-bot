@@ -10,27 +10,22 @@ STATE_FILE = "sent_links.json"
 
 feeds = {
 
-"🚨 MACRO BREAKING":
+"🌍 GEOPOLITICAL BREAKING":
+[
+"https://feeds.bbci.co.uk/news/world/rss.xml",
+"https://www.reuters.com/world/rss",
+"https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+],
+
+"🚨 MACRO MARKET MOVERS":
 [
 "https://www.reuters.com/markets/rss",
-"https://feeds.marketwatch.com/marketwatch/topstories/",
-"https://feeds.a.dj.com/rss/RSSMarketsMain.xml"
+"https://feeds.marketwatch.com/marketwatch/topstories/"
 ],
 
 "📊 HIGH IMPACT ECONOMIC DATA":
 [
 "https://www.investing.com/rss/news_25.rss"
-],
-
-"🌍 GEOPOLITICS":
-[
-"https://feeds.bbci.co.uk/news/world/rss.xml"
-],
-
-"₿ CRYPTO MARKET MOVERS":
-[
-"https://cointelegraph.com/rss",
-"https://www.coindesk.com/arc/outboundfeeds/rss/"
 ],
 
 "💥 BTC LIQUIDATIONS":
@@ -42,6 +37,30 @@ feeds = {
 
 HIGH_IMPACT_KEYWORDS = [
 
+# US / Iran focus
+"Iran",
+"United States",
+"Pentagon",
+"missile",
+"airstrike",
+"naval",
+"sanctions",
+"Hormuz",
+"Persian Gulf",
+
+# broader geopolitics
+"Israel",
+"Hamas",
+"Russia",
+"Ukraine",
+"China",
+"Taiwan",
+"war",
+"attack",
+"military",
+"conflict",
+
+# macro volatility triggers
 "CPI",
 "NFP",
 "FOMC",
@@ -49,17 +68,14 @@ HIGH_IMPACT_KEYWORDS = [
 "Federal Reserve",
 "Powell",
 "inflation",
-"GDP",
-"PMI",
 "bond yields",
 "DXY",
-"war",
-"attack",
-"sanctions",
+
+# crypto liquidation signals
 "liquidation",
 "liquidations",
-"Bitcoin ETF",
-"ETF inflows"
+"short squeeze",
+"long squeeze"
 
 ]
 
@@ -102,7 +118,7 @@ for category in feeds:
                     message = f"""
 {category}
 
-🚨 MARKET MOVING ALERT
+🚨 HIGH-IMPACT ALERT
 
 {title}
 
