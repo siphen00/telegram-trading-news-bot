@@ -14,7 +14,6 @@ feeds = {
 "🌍 GEOPOLITICAL":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://feeds.a.dj.com/rss/RSSWorldNews.xml",
 "https://www.reuters.com/world/rss"
 ],
 
@@ -44,73 +43,32 @@ CRITICAL_KEYWORDS = [
 "missile",
 "airstrike",
 "naval",
-"Pentagon",
 "war",
 
 "CPI",
 "NFP",
 "FOMC",
-"interest rate",
 
 "oil spike",
 "crude surge",
-"supply disruption",
 
-"liquidation",
-"long squeeze",
-"short squeeze"
-
+"liquidation"
 ]
 
 
 HIGH_KEYWORDS = [
 
 "Trump",
-"sanctions",
 "China",
 "Taiwan",
 "Russia",
 "Ukraine",
-
-"bond yields",
-"DXY"
-
-]
-
-
-MEDIUM_KEYWORDS = [
-
-"GDP",
-"PMI",
-"Retail Sales",
-"jobless claims",
-"inflation expectations"
-
+"sanctions"
 ]
 
 
 def normalize(title):
-
     return title.lower().strip()
-
-
-def classify_priority(title):
-
-    title_lower = title.lower()
-
-    if any(word.lower() in title_lower for word in CRITICAL_KEYWORDS):
-
-        return "🔴 CRITICAL"
-
-    if any(word.lower() in title_lower for word in HIGH_KEYWORDS):
-
-        return "🟠 HIGH"
-
-    if any(word.lower() in title_lower for word in MEDIUM_KEYWORDS):
-
-        return "🟡 MEDIUM"
-
-    return None
 
 
 def load_titles():
@@ -134,6 +92,9 @@ def save_titles(titles):
 sent_titles = load_titles()
 
 
+new_titles_added = False
+
+
 for category in feeds:
 
     for url in feeds[category]:
@@ -147,17 +108,13 @@ for category in feeds:
             clean_title = normalize(title)
 
             if clean_title in sent_titles:
-
                 continue
 
 
-            priority = classify_priority(title)
-
-
-            if priority:
+            if any(word.lower() in clean_title for word in CRITICAL_KEYWORDS + HIGH_KEYWORDS):
 
                 message = f"""
-{priority}
+🚨 MARKET ALERT
 
 {category}
 
@@ -176,5 +133,9 @@ for category in feeds:
 
                 sent_titles.add(clean_title)
 
+                new_titles_added = True
 
-save_titles(sent_titles)
+
+if new_titles_added:
+
+    save_titles(sent_titles)
