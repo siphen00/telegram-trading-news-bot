@@ -1,36 +1,45 @@
 import requests
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
 
+API_URL = "https://api.tradingeconomics.com/calendar/country/united states?c=guest:guest&format=json"
 
-USD_EVENTS = [
 
-("ISM Services PMI", "17:00"),
-("ISM Manufacturing PMI", "17:00"),
-("CPI", "15:30"),
-("Core CPI", "15:30"),
-("NFP", "15:30"),
-("Unemployment Rate", "15:30"),
-("Retail Sales", "15:30"),
-("GDP", "15:30"),
-("FOMC", "21:00"),
-("Powell Speech", "20:00")
+RED_FOLDER_KEYWORDS = [
+
+"CPI",
+"Core CPI",
+"NFP",
+"Non Farm Payrolls",
+"FOMC",
+"Interest Rate Decision",
+"PCE",
+"Core PCE",
+"GDP",
+"Retail Sales",
+"ISM",
+"Unemployment",
+"Jobless Claims",
+"Powell",
+"Federal Reserve"
 
 ]
 
 
 def send_message(text):
 
-    requests.post(
+    response = requests.post(
         f"https://api.telegram.org/bot{TOKEN}/sendMessage",
         data={
             "chat_id": CHANNEL_ID,
             "text": text
         }
     )
+
+    return response.json()
 
 
 def pin_message(message_id):
@@ -46,28 +55,34 @@ def pin_message(message_id):
 
 today = datetime.utcnow().strftime("%Y-%m-%d")
 
-message = "📌 TODAY'S USD RED FOLDER EVENTS\n\n"
+events = requests.get(API_URL).json()
 
-for event, time in USD_EVENTS:
-
-    message += f"{time} — {event}\n"
+today_events = []
 
 
-response = requests.post(
-    f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-    data={
-        "chat_id": CHANNEL_ID,
-        "text": message
-    }
-)
+for event in events:
+
+    event_date = event["Date"][:10]
+
+    title = event["Event"]
+
+    if event_date == today:
+
+        if any(keyword.lower() in title.lower() for keyword in RED_FOLDER_KEYWORDS):
+
+            time = event["Date"][11:16]
+
+            today_events.append(f"{time} — {title}")
 
 
-msg_id = response.json()["result"]["message_id"]
+if today_events:
 
-requests.post(
-    f"https://api.telegram.org/bot{TOKEN}/pinChatMessage",
-    data={
-        "chat_id": CHANNEL_ID,
-        "message_id": msg_id
-    }
-)
+    message = "📌 TODAY'S USD RED FOLDER EVENTS\n\n"
+
+    message += "\n".join(today_events)
+
+    response = send_message(message)
+
+    message_id = response["result"]["message_id"]
+
+    pin_message(message_id)
