@@ -6,26 +6,25 @@ import json
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
 
-STATE_FILE = "sent_links.json"
+STATE_FILE = "sent_titles.json"
 
 
 feeds = {
 
-"🌍 GEOPOLITICAL BREAKING":
+"🌍 GEOPOLITICAL":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
 "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
 "https://www.reuters.com/world/rss"
 ],
 
-"📊 MACRO DATA RELEASES":
+"📊 MACRO DATA":
 [
 "https://www.investing.com/rss/news_25.rss"
 ],
 
-"🛢 OIL MARKET SHOCK ALERTS":
+"🛢 OIL MARKET":
 [
-"https://feeds.marketwatch.com/marketwatch/topstories/",
 "https://www.reuters.com/markets/commodities/rss"
 ],
 
@@ -37,67 +36,26 @@ feeds = {
 }
 
 
-HIGH_IMPACT_KEYWORDS = [
+CRITICAL_KEYWORDS = [
 
-# RED FOLDER DATA
+"Iran",
+"Hormuz",
+"Strait of Hormuz",
+"missile",
+"airstrike",
+"naval",
+"Pentagon",
+"war",
+
 "CPI",
 "NFP",
 "FOMC",
-"PCE",
-"GDP",
-"PMI",
-"Retail Sales",
-"jobless claims",
-"inflation",
 "interest rate",
-"Federal Reserve",
 
-# TRUMP SIGNALS
-"Trump",
-
-# US–IRAN SIGNALS
-"Iran",
-"Pentagon",
-"airstrike",
-"missile",
-"naval",
-"Persian Gulf",
-"Hormuz",
-"sanctions",
-"IRGC",
-
-# STRAIT OF HORMUZ ALERTS
-"Strait of Hormuz",
-"oil tanker",
-"shipping disruption",
-"naval deployment",
-
-# OIL SHOCK DETECTION
 "oil spike",
 "crude surge",
-"Brent jumps",
-"energy disruption",
 "supply disruption",
-"pipeline attack",
 
-# GLOBAL WAR SIGNALS
-"Israel",
-"Hamas",
-"Russia",
-"Ukraine",
-"China",
-"Taiwan",
-"military",
-"conflict",
-"attack",
-"war",
-
-# MARKET SHOCK SIGNALS
-"bond yields",
-"DXY",
-"crude jumps",
-
-# CRYPTO VOLATILITY
 "liquidation",
 "long squeeze",
 "short squeeze"
@@ -105,7 +63,57 @@ HIGH_IMPACT_KEYWORDS = [
 ]
 
 
-def load_sent_links():
+HIGH_KEYWORDS = [
+
+"Trump",
+"sanctions",
+"China",
+"Taiwan",
+"Russia",
+"Ukraine",
+
+"bond yields",
+"DXY"
+
+]
+
+
+MEDIUM_KEYWORDS = [
+
+"GDP",
+"PMI",
+"Retail Sales",
+"jobless claims",
+"inflation expectations"
+
+]
+
+
+def normalize(title):
+
+    return title.lower().strip()
+
+
+def classify_priority(title):
+
+    title_lower = title.lower()
+
+    if any(word.lower() in title_lower for word in CRITICAL_KEYWORDS):
+
+        return "🔴 CRITICAL"
+
+    if any(word.lower() in title_lower for word in HIGH_KEYWORDS):
+
+        return "🟠 HIGH"
+
+    if any(word.lower() in title_lower for word in MEDIUM_KEYWORDS):
+
+        return "🟡 MEDIUM"
+
+    return None
+
+
+def load_titles():
 
     if os.path.exists(STATE_FILE):
 
@@ -116,14 +124,14 @@ def load_sent_links():
     return set()
 
 
-def save_sent_links(links):
+def save_titles(titles):
 
     with open(STATE_FILE, "w") as f:
 
-        json.dump(list(links), f)
+        json.dump(list(titles), f)
 
 
-sent_links = load_sent_links()
+sent_titles = load_titles()
 
 
 for category in feeds:
@@ -136,29 +144,37 @@ for category in feeds:
 
             title = entry.title
 
-            if any(keyword.lower() in title.lower() for keyword in HIGH_IMPACT_KEYWORDS):
+            clean_title = normalize(title)
 
-                if entry.link not in sent_links:
+            if clean_title in sent_titles:
 
-                    message = f"""
+                continue
+
+
+            priority = classify_priority(title)
+
+
+            if priority:
+
+                message = f"""
+{priority}
+
 {category}
-
-🚨 HIGH-IMPACT BREAKING NEWS
 
 {title}
 
 {entry.link}
 """
 
-                    requests.post(
-                        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-                        data={
-                            "chat_id": CHANNEL_ID,
-                            "text": message
-                        }
-                    )
+                requests.post(
+                    f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+                    data={
+                        "chat_id": CHANNEL_ID,
+                        "text": message
+                    }
+                )
 
-                    sent_links.add(entry.link)
+                sent_titles.add(clean_title)
 
 
-save_sent_links(sent_links)
+save_titles(sent_titles)
