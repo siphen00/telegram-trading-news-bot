@@ -11,31 +11,25 @@ STATE_FILE = "sent_titles.json"
 
 feeds = {
 
-"🌍 GEOPOLITICAL BREAKING":
+"🌍 WORLD":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
 "https://www.reutersagency.com/feed/?best-topics=world&post_type=best",
 "https://apnews.com/rss/apf-topnews"
 ],
 
-"⚔️ MILITARY ALERTS":
-[
-"https://warontherocks.com/feed/",
-"https://www.thecipherbrief.com/feed"
-],
-
-"🛢 ENERGY SHOCK ALERTS":
+"🛢 ENERGY":
 [
 "https://oilprice.com/rss/main",
 "https://www.reutersagency.com/feed/?best-topics=energy&post_type=best"
 ],
 
-"📊 MACRO DATA":
+"📊 MACRO":
 [
 "https://www.investing.com/rss/news_25.rss"
 ],
 
-"💥 BTC LIQUIDATIONS":
+"₿ CRYPTO":
 [
 "https://cryptopanic.com/news/rss/"
 ]
@@ -43,60 +37,38 @@ feeds = {
 }
 
 
-CRITICAL_KEYWORDS = [
+KEYWORDS = [
 
 "iran",
 "hormuz",
-"missile",
-"naval",
-"airstrike",
-"attack",
 "war",
+"attack",
+"military",
+"missile",
 
 "cpi",
 "nfp",
 "fomc",
+"inflation",
 "interest rate",
 
-"oil spike",
-"crude surge",
-"supply disruption",
-
-"liquidation",
-"squeeze"
-
-]
-
-
-HIGH_KEYWORDS = [
+"oil",
+"crude",
+"energy",
 
 "trump",
 "china",
 "taiwan",
 "russia",
 "ukraine",
-"sanctions",
-"bond yields",
-"dxy"
 
+"liquidation",
+"squeeze"
 ]
 
 
 def normalize(title):
     return title.lower().strip()
-
-
-def classify_priority(title):
-
-    title_lower = title.lower()
-
-    if any(word in title_lower for word in CRITICAL_KEYWORDS):
-        return "🔴 CRITICAL"
-
-    if any(word in title_lower for word in HIGH_KEYWORDS):
-        return "🟠 HIGH"
-
-    return None
 
 
 def load_titles():
@@ -126,7 +98,7 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:10]:
+        for entry in feed.entries[:8]:
 
             title = entry.title
 
@@ -136,12 +108,10 @@ for category in feeds:
                 continue
 
 
-            priority = classify_priority(title)
-
-            if priority:
+            if any(word in clean_title for word in KEYWORDS):
 
                 message = f"""
-{priority}
+🚨 MARKET ALERT
 
 {category}
 
@@ -164,4 +134,18 @@ for category in feeds:
 
 
 if new_titles_added:
+
     save_titles(sent_titles)
+
+
+# TEST MESSAGE IF NOTHING SENT
+
+if not new_titles_added:
+
+    requests.post(
+        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+        data={
+            "chat_id": CHANNEL_ID,
+            "text": "✅ Bot is running but no high-impact news detected in this cycle."
+        }
+    )
