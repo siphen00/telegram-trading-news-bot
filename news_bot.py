@@ -11,25 +11,23 @@ STATE_FILE = "sent_titles.json"
 
 feeds = {
 
-"🌍 WORLD":
+"🌍 GEOPOLITICAL":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://www.reutersagency.com/feed/?best-topics=world&post_type=best",
-"https://apnews.com/rss/apf-topnews"
+"https://www.reuters.com/world/rss"
 ],
 
-"🛢 ENERGY":
-[
-"https://oilprice.com/rss/main",
-"https://www.reutersagency.com/feed/?best-topics=energy&post_type=best"
-],
-
-"📊 MACRO":
+"📊 MACRO DATA":
 [
 "https://www.investing.com/rss/news_25.rss"
 ],
 
-"₿ CRYPTO":
+"🛢 OIL MARKET":
+[
+"https://www.reuters.com/markets/commodities/rss"
+],
+
+"💥 BTC LIQUIDATIONS":
 [
 "https://cryptopanic.com/news/rss/"
 ]
@@ -37,33 +35,35 @@ feeds = {
 }
 
 
-KEYWORDS = [
+CRITICAL_KEYWORDS = [
 
-"iran",
-"hormuz",
-"war",
-"attack",
-"military",
+"Iran",
+"Hormuz",
+"Strait of Hormuz",
 "missile",
+"airstrike",
+"naval",
+"war",
 
-"cpi",
-"nfp",
-"fomc",
-"inflation",
-"interest rate",
+"CPI",
+"NFP",
+"FOMC",
 
-"oil",
-"crude",
-"energy",
+"oil spike",
+"crude surge",
 
-"trump",
-"china",
-"taiwan",
-"russia",
-"ukraine",
+"liquidation"
+]
 
-"liquidation",
-"squeeze"
+
+HIGH_KEYWORDS = [
+
+"Trump",
+"China",
+"Taiwan",
+"Russia",
+"Ukraine",
+"sanctions"
 ]
 
 
@@ -76,6 +76,7 @@ def load_titles():
     if os.path.exists(STATE_FILE):
 
         with open(STATE_FILE, "r") as f:
+
             return set(json.load(f))
 
     return set()
@@ -84,10 +85,12 @@ def load_titles():
 def save_titles(titles):
 
     with open(STATE_FILE, "w") as f:
+
         json.dump(list(titles), f)
 
 
 sent_titles = load_titles()
+
 
 new_titles_added = False
 
@@ -98,7 +101,7 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:8]:
+        for entry in feed.entries[:6]:
 
             title = entry.title
 
@@ -108,7 +111,7 @@ for category in feeds:
                 continue
 
 
-            if any(word in clean_title for word in KEYWORDS):
+            if any(word.lower() in clean_title for word in CRITICAL_KEYWORDS + HIGH_KEYWORDS):
 
                 message = f"""
 🚨 MARKET ALERT
@@ -136,16 +139,3 @@ for category in feeds:
 if new_titles_added:
 
     save_titles(sent_titles)
-
-
-# TEST MESSAGE IF NOTHING SENT
-
-if not new_titles_added:
-
-    requests.post(
-        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-        data={
-            "chat_id": CHANNEL_ID,
-            "text": "✅ Bot is running but no high-impact news detected in this cycle."
-        }
-    )
