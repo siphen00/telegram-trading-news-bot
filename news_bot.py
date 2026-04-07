@@ -11,36 +11,28 @@ STATE_FILE = "sent_titles.json"
 
 feeds = {
 
-"🌍 BREAKING GEOPOLITICS":
+"🌍 GEOPOLITICAL BREAKING":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://www.reuters.com/world/rss",
+"https://www.reutersagency.com/feed/?best-topics=world&post_type=best",
 "https://apnews.com/rss/apf-topnews"
 ],
 
-"⚔️ MILITARY + SECURITY":
+"⚔️ MILITARY ALERTS":
 [
 "https://warontherocks.com/feed/",
-"https://www.thecipherbrief.com/feed",
-"https://foreignpolicy.com/feed/",
-"https://www.rand.org/topics/international-affairs.rss"
+"https://www.thecipherbrief.com/feed"
 ],
 
-"🛢 ENERGY SHOCK MONITOR":
+"🛢 ENERGY SHOCK ALERTS":
 [
 "https://oilprice.com/rss/main",
-"https://www.reuters.com/markets/commodities/rss"
+"https://www.reutersagency.com/feed/?best-topics=energy&post_type=best"
 ],
 
-"📊 MACRO DATA RELEASES":
+"📊 MACRO DATA":
 [
-"https://www.investing.com/rss/news_25.rss",
-"https://www.atlantafed.org/rss/macroblog.xml"
-],
-
-"🏦 CENTRAL BANK SIGNALS":
-[
-"https://cepr.org/rss/news"
+"https://www.investing.com/rss/news_25.rss"
 ],
 
 "💥 BTC LIQUIDATIONS":
@@ -53,20 +45,17 @@ feeds = {
 
 CRITICAL_KEYWORDS = [
 
-"Iran",
-"Hormuz",
-"Strait of Hormuz",
+"iran",
+"hormuz",
 "missile",
-"airstrike",
 "naval",
-"Pentagon",
-"war",
+"airstrike",
 "attack",
-"military",
+"war",
 
-"CPI",
-"NFP",
-"FOMC",
+"cpi",
+"nfp",
+"fomc",
 "interest rate",
 
 "oil spike",
@@ -74,38 +63,26 @@ CRITICAL_KEYWORDS = [
 "supply disruption",
 
 "liquidation",
-"long squeeze",
-"short squeeze"
+"squeeze"
 
 ]
 
 
 HIGH_KEYWORDS = [
 
-"Trump",
-"China",
-"Taiwan",
-"Russia",
-"Ukraine",
+"trump",
+"china",
+"taiwan",
+"russia",
+"ukraine",
 "sanctions",
 "bond yields",
-"DXY"
+"dxy"
 
-]
-
-
-MEDIUM_KEYWORDS = [
-
-"GDP",
-"PMI",
-"Retail Sales",
-"jobless claims",
-"inflation expectations"
 ]
 
 
 def normalize(title):
-
     return title.lower().strip()
 
 
@@ -113,17 +90,11 @@ def classify_priority(title):
 
     title_lower = title.lower()
 
-    if any(word.lower() in title_lower for word in CRITICAL_KEYWORDS):
-
+    if any(word in title_lower for word in CRITICAL_KEYWORDS):
         return "🔴 CRITICAL"
 
-    if any(word.lower() in title_lower for word in HIGH_KEYWORDS):
-
+    if any(word in title_lower for word in HIGH_KEYWORDS):
         return "🟠 HIGH"
-
-    if any(word.lower() in title_lower for word in MEDIUM_KEYWORDS):
-
-        return "🟡 MEDIUM"
 
     return None
 
@@ -133,7 +104,6 @@ def load_titles():
     if os.path.exists(STATE_FILE):
 
         with open(STATE_FILE, "r") as f:
-
             return set(json.load(f))
 
     return set()
@@ -142,7 +112,6 @@ def load_titles():
 def save_titles(titles):
 
     with open(STATE_FILE, "w") as f:
-
         json.dump(list(titles), f)
 
 
@@ -157,19 +126,17 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:8]:
+        for entry in feed.entries[:10]:
 
             title = entry.title
 
             clean_title = normalize(title)
 
             if clean_title in sent_titles:
-
                 continue
 
 
             priority = classify_priority(title)
-
 
             if priority:
 
@@ -197,5 +164,4 @@ for category in feeds:
 
 
 if new_titles_added:
-
     save_titles(sent_titles)
