@@ -5,9 +5,6 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -16,24 +13,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: "3.11"
 
-      - name: Install packages
-        run: pip install feedparser requests
+      - name: Install dependencies
+        run: |
+          pip install feedparser requests
 
       - name: Run bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: python news_bot.py
-
-      - name: Commit memory file
-        run: |
-          git config --global user.name "news-bot"
-          git config --global user.email "bot@example.com"
-          git add sent_titles.json || true
-          git commit -m "update sent titles" || true
-          git push
