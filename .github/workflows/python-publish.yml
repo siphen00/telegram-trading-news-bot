@@ -16,12 +16,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup python
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      - name: Install dependencies
+      - name: Install packages
         run: pip install feedparser requests
 
       - name: Run bot
@@ -30,10 +30,10 @@ jobs:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: python news_bot.py
 
-      - name: Save memory (prevent duplicates)
+      - name: Commit memory file
         run: |
           git config --global user.name "news-bot"
           git config --global user.email "bot@example.com"
           git add sent_titles.json || true
-          git commit -m "update memory" || true
+          git commit -m "update sent titles" || true
           git push
