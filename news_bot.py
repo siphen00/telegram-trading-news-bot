@@ -9,65 +9,54 @@ CHANNEL_ID = os.environ["CHANNEL_ID"]
 STATE_FILE = "sent_titles.json"
 
 
-feeds = {
+feeds = [
 
-"🌍 GEOPOLITICAL":
-[
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://www.reuters.com/world/rss"
-],
+"https://www.reutersagency.com/feed/?best-topics=world&post_type=best",
+"https://apnews.com/rss/apf-topnews",
 
-"📊 MACRO DATA":
-[
-"https://www.investing.com/rss/news_25.rss"
-],
+"https://www.reutersagency.com/feed/?best-topics=energy&post_type=best",
+"https://oilprice.com/rss/main",
 
-"🛢 OIL MARKET":
-[
-"https://www.reuters.com/markets/commodities/rss"
-],
+"https://www.investing.com/rss/news_25.rss",
 
-"💥 BTC LIQUIDATIONS":
-[
 "https://cryptopanic.com/news/rss/"
 ]
 
-}
 
+KEYWORDS = [
 
-CRITICAL_KEYWORDS = [
-
-"Iran",
-"Hormuz",
-"Strait of Hormuz",
-"missile",
-"airstrike",
-"naval",
+"iran",
+"hormuz",
 "war",
+"attack",
+"military",
+"missile",
 
-"CPI",
-"NFP",
-"FOMC",
+"trump",
 
-"oil spike",
-"crude surge",
+"china",
+"taiwan",
+"russia",
+"ukraine",
 
-"liquidation"
-]
+"cpi",
+"nfp",
+"fomc",
+"inflation",
+"interest rate",
 
+"oil",
+"crude",
+"energy",
 
-HIGH_KEYWORDS = [
-
-"Trump",
-"China",
-"Taiwan",
-"Russia",
-"Ukraine",
-"sanctions"
+"liquidation",
+"squeeze"
 ]
 
 
 def normalize(title):
+
     return title.lower().strip()
 
 
@@ -91,51 +80,87 @@ def save_titles(titles):
 
 sent_titles = load_titles()
 
-
-new_titles_added = False
-
-
-for category in feeds:
-
-    for url in feeds[category]:
-
-        feed = feedparser.parse(url)
-
-        for entry in feed.entries[:6]:
-
-            title = entry.title
-
-            clean_title = normalize(title)
-
-            if clean_title in sent_titles:
-                continue
+sent_this_run = False
 
 
-            if any(word.lower() in clean_title for word in CRITICAL_KEYWORDS + HIGH_KEYWORDS):
+print("Loaded previous titles:", len(sent_titles))
 
-                message = f"""
+
+for url in feeds:
+
+    print("Checking feed:", url)
+
+    feed = feedparser.parse(url)
+
+
+    for entry in feed.entries[:10]:
+
+        title = entry.title
+
+        clean_title = normalize(title)
+
+
+        if clean_title in sent_titles:
+
+            continue
+
+
+        if any(word in clean_title for word in KEYWORDS):
+
+            message = f"""
+
 🚨 MARKET ALERT
-
-{category}
 
 {title}
 
 {entry.link}
+
 """
 
-                requests.post(
-                    f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-                    data={
-                        "chat_id": CHANNEL_ID,
-                        "text": message
-                    }
-                )
+            response = requests.post(
 
-                sent_titles.add(clean_title)
+                f"https://api.telegram.org/bot{TOKEN}/sendMessage",
 
-                new_titles_added = True
+                data={
+
+                    "chat_id": CHANNEL_ID,
+
+                    "text": message
+
+                }
+
+            )
 
 
-if new_titles_added:
+            print("Sent:", title)
+
+            print(response.text)
+
+
+            sent_titles.add(clean_title)
+
+            sent_this_run = True
+
+
+if sent_this_run:
 
     save_titles(sent_titles)
+
+else:
+
+    print("No keyword matches found — sending heartbeat message")
+
+
+    requests.post(
+
+        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+
+        data={
+
+            "chat_id": CHANNEL_ID,
+
+            "text": "✅ Bot running — no macro/geopolitical alerts this cycle"
+
+        }
+
+    )
