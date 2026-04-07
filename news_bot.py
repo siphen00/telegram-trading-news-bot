@@ -11,20 +11,36 @@ STATE_FILE = "sent_titles.json"
 
 feeds = {
 
-"🌍 GEOPOLITICAL":
+"🌍 BREAKING GEOPOLITICS":
 [
 "https://feeds.bbci.co.uk/news/world/rss.xml",
-"https://www.reuters.com/world/rss"
+"https://www.reuters.com/world/rss",
+"https://apnews.com/rss/apf-topnews"
 ],
 
-"📊 MACRO DATA":
+"⚔️ MILITARY + SECURITY":
 [
-"https://www.investing.com/rss/news_25.rss"
+"https://warontherocks.com/feed/",
+"https://www.thecipherbrief.com/feed",
+"https://foreignpolicy.com/feed/",
+"https://www.rand.org/topics/international-affairs.rss"
 ],
 
-"🛢 OIL MARKET":
+"🛢 ENERGY SHOCK MONITOR":
 [
+"https://oilprice.com/rss/main",
 "https://www.reuters.com/markets/commodities/rss"
+],
+
+"📊 MACRO DATA RELEASES":
+[
+"https://www.investing.com/rss/news_25.rss",
+"https://www.atlantafed.org/rss/macroblog.xml"
+],
+
+"🏦 CENTRAL BANK SIGNALS":
+[
+"https://cepr.org/rss/news"
 ],
 
 "💥 BTC LIQUIDATIONS":
@@ -43,16 +59,24 @@ CRITICAL_KEYWORDS = [
 "missile",
 "airstrike",
 "naval",
+"Pentagon",
 "war",
+"attack",
+"military",
 
 "CPI",
 "NFP",
 "FOMC",
+"interest rate",
 
 "oil spike",
 "crude surge",
+"supply disruption",
 
-"liquidation"
+"liquidation",
+"long squeeze",
+"short squeeze"
+
 ]
 
 
@@ -63,12 +87,45 @@ HIGH_KEYWORDS = [
 "Taiwan",
 "Russia",
 "Ukraine",
-"sanctions"
+"sanctions",
+"bond yields",
+"DXY"
+
+]
+
+
+MEDIUM_KEYWORDS = [
+
+"GDP",
+"PMI",
+"Retail Sales",
+"jobless claims",
+"inflation expectations"
 ]
 
 
 def normalize(title):
+
     return title.lower().strip()
+
+
+def classify_priority(title):
+
+    title_lower = title.lower()
+
+    if any(word.lower() in title_lower for word in CRITICAL_KEYWORDS):
+
+        return "🔴 CRITICAL"
+
+    if any(word.lower() in title_lower for word in HIGH_KEYWORDS):
+
+        return "🟠 HIGH"
+
+    if any(word.lower() in title_lower for word in MEDIUM_KEYWORDS):
+
+        return "🟡 MEDIUM"
+
+    return None
 
 
 def load_titles():
@@ -91,7 +148,6 @@ def save_titles(titles):
 
 sent_titles = load_titles()
 
-
 new_titles_added = False
 
 
@@ -101,20 +157,24 @@ for category in feeds:
 
         feed = feedparser.parse(url)
 
-        for entry in feed.entries[:6]:
+        for entry in feed.entries[:8]:
 
             title = entry.title
 
             clean_title = normalize(title)
 
             if clean_title in sent_titles:
+
                 continue
 
 
-            if any(word.lower() in clean_title for word in CRITICAL_KEYWORDS + HIGH_KEYWORDS):
+            priority = classify_priority(title)
+
+
+            if priority:
 
                 message = f"""
-🚨 MARKET ALERT
+{priority}
 
 {category}
 
