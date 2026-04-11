@@ -2,14 +2,15 @@ name: Trading News Bot
 
 on:
   schedule:
-    - cron: '* * * * *'   # every 1 minute
-  workflow_dispatch:       # manual trigger for testing
+    - cron: '* * * * *'
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     permissions:
-      contents: write      # needed to commit seen_ids.json
+      contents: write
 
     steps:
       - name: Checkout repo
