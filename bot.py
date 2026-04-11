@@ -3,43 +3,34 @@ import requests
 import json
 import os
 import hashlib
+import socket
 from datetime import datetime, timezone, timedelta
+
+socket.setdefaulttimeout(8)
 
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHANNEL_ID = os.environ["TELEGRAM_CHANNEL_ID"]
 SEEN_FILE = "seen_ids.json"
 
-# ── Trusted financial RSS feeds ──────────────────────────────────────────────
 FEEDS = [
-    # Macro / broad markets
     ("Reuters Markets",        "https://feeds.reuters.com/reuters/businessNews"),
     ("Reuters Economy",        "https://feeds.reuters.com/news/economy"),
-    ("FT Markets",             "https://www.ft.com/markets?format=rss"),
     ("MarketWatch Top Stories","https://feeds.marketwatch.com/marketwatch/topstories/"),
     ("CNBC Markets",           "https://www.cnbc.com/id/10000664/device/rss/rss.html"),
     ("Investing.com News",     "https://www.investing.com/rss/news.rss"),
     ("Yahoo Finance",          "https://finance.yahoo.com/rss/"),
     ("Forexlive",              "https://www.forexlive.com/feed/news"),
     ("Nasdaq News",            "https://www.nasdaq.com/feed/rssoutput.aspx"),
-    # Crypto
     ("CoinDesk",               "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph",          "https://cointelegraph.com/rss"),
-    # Central banks / economic data
-    ("Fed Reserve",            "https://www.federalreserve.gov/feeds/press_all.xml"),
 ]
 
-# ── Keywords that matter for your instruments ─────────────────────────────────
 KEYWORDS = [
-    # BTC / Crypto
     "bitcoin","btc","crypto","cryptocurrency","coinbase","binance","etf",
-    # NQ / Tech / Nasdaq
     "nasdaq","nq","tech","nvidia","apple","microsoft","google","meta","amazon",
     "fed","federal reserve","fomc","rate","inflation","cpi","ppi","gdp",
-    # SPX / Broad market
     "s&p","spx","dow","market","stocks","equity","recession","earnings",
-    # Gold / Commodities
     "gold","xau","silver","oil","commodity","commodities","safe haven",
-    # Macro drivers
     "dollar","dxy","yield","treasury","bond","jobs","nonfarm","unemployment",
     "geopolit","war","china","ukraine","middle east","opec",
 ]
@@ -52,14 +43,13 @@ def load_seen():
 
 def save_seen(seen):
     with open(SEEN_FILE, "w") as f:
-        json.dump(list(seen)[-2000:], f)  # keep last 2000
+        json.dump(list(seen)[-2000:], f)
 
 def is_relevant(title, summary=""):
     text = (title + " " + summary).lower()
     return any(kw in text for kw in KEYWORDS)
 
 def is_recent(entry):
-    """Only send articles from the last 2 minutes to avoid spam on first run."""
     try:
         pub = entry.get("published_parsed") or entry.get("updated_parsed")
         if not pub:
@@ -89,8 +79,8 @@ def main():
 
     for source_name, url in FEEDS:
         try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:10]:  # check latest 10 per feed
+            feed = feedparser.parse(url, request_headers={"User-Agent": "Mozilla/5.0"})
+            for entry in feed.entries[:10]:
                 aid = article_id(entry)
                 if aid in seen:
                     continue
@@ -102,7 +92,6 @@ def main():
         except Exception as e:
             print(f"Error fetching {source_name}: {e}")
 
-    # Send new articles
     sent = 0
     for source, title, link, aid in new_articles:
         msg = f"📰 <b>{source}</b>\n{title}\n\n🔗 <a href='{link}'>Read more</a>"
