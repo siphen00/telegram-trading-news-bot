@@ -62,7 +62,6 @@ BLACKLIST = [
     "obituary","wedding","birth announcement",
 ]
 
-# ── Red folder: detected from actual article content only ────────────────────
 RED_FOLDER_KEYWORDS = [
     "nonfarm payroll","nfp","non-farm","jobs report",
     "cpi report","inflation report","core cpi","core pce",
@@ -77,7 +76,6 @@ RED_FOLDER_KEYWORDS = [
     "sec approves","sec rejects","bitcoin etf","crypto ban","exchange hack",
 ]
 
-# ── Market tags ───────────────────────────────────────────────────────────────
 def get_market_tags(title, summary=""):
     text = (title + " " + summary).lower()
     tags = []
@@ -101,7 +99,6 @@ def tag_bar(tags):
     icons = {"BTC":"₿","NQ":"📊","SPX":"🗽","GOLD":"🥇","OIL":"🛢","DXY":"💵","GEO":"🌍"}
     return "  ".join(f"{icons.get(t,'•')} #{t}" for t in tags) if tags else ""
 
-# ── Message formatters ────────────────────────────────────────────────────────
 def format_normal(source, title, link, pub_time):
     tags = tag_bar(get_market_tags(title))
     return (
@@ -152,7 +149,6 @@ def format_red_pin(source, title, link, pub_time):
         f"━━━━━━━━━━━━━━━━━━━━━━━━"
     )
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
 def now_utc():
     return datetime.now(timezone.utc)
 
@@ -186,7 +182,12 @@ def save_seen(seen):
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": CHANNEL_ID, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}
+    payload = {
+        "chat_id": CHANNEL_ID,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+    }
     try:
         resp = requests.post(url, json=payload, timeout=10)
         if not resp.ok:
@@ -242,7 +243,6 @@ def is_recent(entry):
     except Exception:
         return True
 
-# ── 24hr pin reset manager ────────────────────────────────────────────────────
 def cleanup_old_pins():
     pinned = load_json(PINNED_FILE, {})
     now = now_utc()
@@ -262,7 +262,6 @@ def cleanup_old_pins():
         save_json(PINNED_FILE, pinned)
     return pinned
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     seen = load_seen()
     pinned = cleanup_old_pins()
@@ -290,17 +289,14 @@ def main():
         except Exception as e:
             print(f"Error fetching {source_name}: {e}")
 
-    # Red first → breaking → normal
     new_articles.sort(key=lambda x: (not x[5], not x[4]))
     print(f"\nTotal new relevant articles: {len(new_articles)}")
 
     sent = 0
     for source, title, link, aid, breaking, red, pub_time in new_articles:
         if red:
-            # Check if this red folder event is already pinned
             pin_key = hashlib.md5(title[:60].encode()).hexdigest()
             if pin_key not in pinned:
-                # Send as pinned red folder message
                 msg = format_red_pin(source, title, link, pub_time)
                 message_id = send_message(msg)
                 if message_id:
@@ -311,9 +307,8 @@ def main():
                         "title": title[:60],
                     }
                     save_json(PINNED_FILE, pinned)
-                    print(f"  → 📌 Pinned red folder: {title[:60]}")
+                    print(f"  → 📌 Pinned: {title[:60]}")
             else:
-                # Already pinned, just send as regular red message
                 msg = format_red(source, title, link, pub_time)
                 message_id = send_message(msg)
             seen.add(aid)
