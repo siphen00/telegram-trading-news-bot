@@ -2,19 +2,24 @@ name: Trading News Bot
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
     permissions:
       contents: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,18 +29,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run bot
+      - name: Run bot loop (every 30 seconds, 10 times)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-        run: python bot.py
-
-      - name: Save seen IDs cache
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          touch seen_ids.json
-          touch pinned_events.json
-          git add seen_ids.json pinned_events.json
-          git diff --staged --quiet || git commit -m "Update cache"
-          git push
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            echo "── Run $i of 10 ──"
+            python bot.py
+            git add seen_ids.json pinned_events.json
+            git diff --staged --quiet || (git commit -m "cache $i" && git push)
+            if [ $i -lt 10 ]; then sleep 30; fi
+          done
