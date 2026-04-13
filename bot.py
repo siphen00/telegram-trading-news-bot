@@ -102,51 +102,41 @@ def tag_bar(tags):
 def format_normal(source, title, link, pub_time):
     tags = tag_bar(get_market_tags(title))
     return (
-        f"┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
-        f"📰  <b>{title}</b>\n"
-        f"┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
-        f"🏢  <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n"
-        f"🔗  <a href='{link}'>Read full article →</a>"
+        f"📰  <b>{title}</b>\n\n"
+        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
+        f"{tags}\n\n"
+        f"🔗 <a href='{link}'>Read full article →</a>"
     )
 
 def format_breaking(source, title, link, pub_time):
     tags = tag_bar(get_market_tags(title))
     return (
-        f"━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"⚡  <b>BREAKING</b>\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"⚡ <b>BREAKING</b>\n\n"
         f"<b>{title}</b>\n\n"
-        f"🏢  <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n"
-        f"🔗  <a href='{link}'>Read full article →</a>"
+        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
+        f"{tags}\n\n"
+        f"🔗 <a href='{link}'>Read full article →</a>"
     )
 
 def format_red(source, title, link, pub_time):
     tags = tag_bar(get_market_tags(title))
     return (
-        f"🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴\n"
-        f"🔴  <b>RED FOLDER</b>\n"
-        f"🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴\n\n"
+        f"🔴 <b>RED FOLDER</b>\n\n"
         f"<b>{title}</b>\n\n"
-        f"🏢  <i>{source}</i>   🕐 {pub_time}\n"
+        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
         f"{tags}\n\n"
-        f"🔗  <a href='{link}'>Read full article →</a>\n"
-        f"🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴"
+        f"🔗 <a href='{link}'>Read full article →</a>"
     )
 
 def format_red_pin(source, title, link, pub_time):
     tags = tag_bar(get_market_tags(title))
     return (
-        f"📌━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🔴  <b>RED FOLDER — PINNED</b>\n"
-        f"📌━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        f"📌 🔴 <b>RED FOLDER — PINNED</b>\n\n"
         f"<b>{title}</b>\n\n"
-        f"🏢  <i>{source}</i>   🕐 {pub_time}\n"
+        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
         f"{tags}\n\n"
-        f"🔗  <a href='{link}'>Full report →</a>\n\n"
-        f"📌  <i>Pinned — resets in 24 hours</i>\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━"
+        f"🔗 <a href='{link}'>Full report →</a>\n\n"
+        f"<i>📌 Pinned — resets in 24 hours</i>"
     )
 
 def now_utc():
