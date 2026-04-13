@@ -17,49 +17,85 @@ FEEDS = [
     ("Reuters Markets",        "https://feeds.reuters.com/reuters/businessNews"),
     ("Reuters Economy",        "https://feeds.reuters.com/news/economy"),
     ("Reuters World",          "https://feeds.reuters.com/Reuters/worldNews"),
+    ("Reuters Politics",       "https://feeds.reuters.com/Reuters/politicsNews"),
     ("MarketWatch",            "https://feeds.marketwatch.com/marketwatch/topstories/"),
     ("CNBC Markets",           "https://www.cnbc.com/id/10000664/device/rss/rss.html"),
     ("CNBC Politics",          "https://www.cnbc.com/id/10000115/device/rss/rss.html"),
+    ("CNBC Economy",           "https://www.cnbc.com/id/20910258/device/rss/rss.html"),
     ("Investing.com",          "https://www.investing.com/rss/news.rss"),
+    ("Investing.com Analysis", "https://www.investing.com/rss/news_25.rss"),
     ("Yahoo Finance",          "https://finance.yahoo.com/rss/"),
     ("Forexlive",              "https://www.forexlive.com/feed/news"),
+    ("Forexlive Analysis",     "https://www.forexlive.com/feed/analysis"),
     ("Nasdaq",                 "https://www.nasdaq.com/feed/rssoutput.aspx"),
     ("CoinDesk",               "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph",          "https://cointelegraph.com/rss"),
     ("Al Jazeera",             "https://www.aljazeera.com/xml/rss/all.xml"),
     ("Middle East Eye",        "https://www.middleeasteye.net/rss"),
+    ("Axios Markets",          "https://api.axios.com/feed/markets"),
+    ("Politico Economy",       "https://www.politico.com/rss/economy.xml"),
 ]
 
 WHITELIST = [
-    "bitcoin","btc","crypto","ethereum","etf",
-    "nasdaq","nq futures","s&p","spx","dow jones",
-    "gold","xau","crude oil","brent","wti",
-    "dollar","dxy","treasury","yield","bond",
-    "fed","federal reserve","fomc","rate decision","rate hike","rate cut",
-    "inflation","cpi","ppi","gdp","nonfarm","nfp","payroll","unemployment",
-    "earnings","revenue","profit","guidance",
-    "middle east","israel","gaza","hamas","hezbollah","west bank","lebanon",
-    "iran","tehran","irgc","nuclear deal","sanctions",
-    "saudi","riyadh","opec","oil supply",
-    "iraq","baghdad","syria","houthi","red sea","strait of hormuz",
-    "yemen","drone attack","missile","airstrike",
-    "trump","white house","tariff","trade war","trade deal",
-    "executive order","pentagon","us military",
-    "congress","debt ceiling","federal budget",
-    "china","beijing","taiwan","xi jinping",
-    "russia","putin","ukraine","nato",
-    "north korea","kim jong",
+    # Crypto
+    "bitcoin","btc","crypto","ethereum","eth","coinbase","binance","defi",
+    "stablecoin","blockchain","web3","altcoin","solana","ripple","xrp","etf",
+    # Equities & indices
+    "nasdaq","nq","s&p","spx","dow jones","dow","russell","stock","stocks",
+    "equity","equities","earnings","revenue","profit","loss","guidance",
+    "ipo","merger","acquisition","buyback","dividend",
+    "nvidia","apple","microsoft","google","alphabet","meta","amazon","tesla",
+    "jpmorgan","goldman","morgan stanley","blackrock","berkshire",
+    # Commodities
+    "gold","xau","silver","platinum","copper",
+    "crude oil","brent","wti","natural gas","energy","opec",
+    "commodity","commodities","safe haven",
+    # Forex & macro
+    "dollar","usd","dxy","euro","eur","yen","jpy","pound","gbp",
+    "treasury","yield","bond","10-year","2-year","spread",
+    "fed","federal reserve","fomc","powell","rate decision","rate hike","rate cut",
+    "inflation","deflation","cpi","ppi","pce","gdp","nonfarm","nfp",
+    "payroll","unemployment","jobless","jobs report","retail sales",
+    "trade balance","current account","fiscal","monetary policy",
+    "recession","stagflation","soft landing","hard landing",
+    # Geopolitical — Middle East
+    "middle east","israel","gaza","hamas","hezbollah","west bank","ramallah",
+    "iran","tehran","irgc","nuclear","sanctions","rouhani","khamenei",
+    "saudi arabia","riyadh","mbs","crown prince",
+    "iraq","baghdad","syria","damascus","houthi","houthis",
+    "red sea","strait of hormuz","gulf","persian gulf",
+    "yemen","drone","missile","airstrike","attack","strike",
+    "lebanon","beirut","jordan","egypt","qatar","uae","abu dhabi","dubai",
+    # Trump & US politics
+    "trump","donald trump","white house","oval office",
+    "tariff","tariffs","trade war","trade deal","trade policy",
+    "executive order","veto","impeach","congress","senate","house",
+    "treasury secretary","sec chairman","fed chair",
+    "sanctions","pentagon","us military","nato","state department",
+    "debt ceiling","federal budget","deficit","spending bill",
+    # China & Asia
+    "china","beijing","xi jinping","pla","taiwan","strait",
+    "hong kong","south china sea","trade","export","import",
+    "japan","bank of japan","boj","korea","north korea","kim jong",
+    # Russia & Europe
+    "russia","putin","moscow","ukraine","kyiv","war","nato",
+    "ecb","european central bank","lagarde","bank of england","boe",
+    "germany","france","uk","britain","eurozone","eu",
+    # Breaking
     "breaking","urgent","alert","flash","just in","developing",
+    "crash","collapse","default","bankruptcy","crisis","emergency",
+    "assassin","coup","explosion","war declared","ceasefire","peace deal",
 ]
 
 BLACKLIST = [
-    "horoscope","zodiac","celebrity","kardashian","oscars","grammy","nfl draft",
-    "recipe","fashion","beauty","makeup","skincare","lifestyle","travel guide",
-    "sports scores","game recap","nba scores","nhl scores","mlb scores",
+    "horoscope","zodiac","celebrity","kardashian","oscars","grammy",
+    "recipe","fashion","beauty","makeup","skincare","lifestyle",
+    "travel guide","sports scores","game recap",
+    "nba scores","nhl scores","mlb scores","nfl scores",
     "movie review","tv show","streaming","netflix","disney","box office",
-    "weather forecast","gardening","home decor","real estate tips",
+    "weather forecast","gardening","home decor",
     "social media trend","tiktok","instagram","viral","meme",
-    "obituary","wedding","birth announcement",
+    "obituary","wedding","birth announcement","real estate tips",
 ]
 
 RED_FOLDER_KEYWORDS = [
@@ -69,7 +105,7 @@ RED_FOLDER_KEYWORDS = [
     "gdp report","gdp growth","gdp shrinks",
     "ppi report","retail sales","jobless claims",
     "ecb decision","boe decision","bank of england","european central bank",
-    "war declared","invasion","nuclear","missile strike","major attack",
+    "war declared","invasion","nuclear strike","missile strike","major attack",
     "ceasefire","peace deal","coup","assassination",
     "market crash","circuit breaker","trading halt","flash crash",
     "trump tariff","trump sanctions","trump executive","trump fires","trump signs",
@@ -79,19 +115,19 @@ RED_FOLDER_KEYWORDS = [
 def get_market_tags(title, summary=""):
     text = (title + " " + summary).lower()
     tags = []
-    if any(w in text for w in ["bitcoin","btc","crypto","ethereum","coinbase","binance"]):
+    if any(w in text for w in ["bitcoin","btc","crypto","ethereum","eth","coinbase","binance","solana","xrp"]):
         tags.append("BTC")
-    if any(w in text for w in ["nasdaq","nq","tech","nvidia","apple","microsoft","google","meta","amazon"]):
+    if any(w in text for w in ["nasdaq","nq","tech","nvidia","apple","microsoft","google","meta","amazon","tesla"]):
         tags.append("NQ")
-    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","market"]):
+    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","ipo","market"]):
         tags.append("SPX")
-    if any(w in text for w in ["gold","xau","silver","safe haven","commodity"]):
+    if any(w in text for w in ["gold","xau","silver","platinum","safe haven","commodity"]):
         tags.append("GOLD")
-    if any(w in text for w in ["oil","crude","brent","wti","opec","energy"]):
+    if any(w in text for w in ["oil","crude","brent","wti","opec","natural gas","energy"]):
         tags.append("OIL")
-    if any(w in text for w in ["dollar","dxy","fed","fomc","rate","inflation","cpi","ppi","gdp","treasury","yield","bond"]):
+    if any(w in text for w in ["dollar","dxy","usd","fed","fomc","rate","inflation","cpi","ppi","gdp","treasury","yield","bond"]):
         tags.append("DXY")
-    if any(w in text for w in ["middle east","israel","gaza","iran","saudi","houthi","ukraine","russia","china","taiwan"]):
+    if any(w in text for w in ["middle east","israel","gaza","iran","saudi","houthi","ukraine","russia","china","taiwan","war","attack","strike"]):
         tags.append("GEO")
     return tags
 
@@ -229,7 +265,8 @@ def is_recent(entry):
         if not pub:
             return True
         pub_dt = datetime(*pub[:6], tzinfo=timezone.utc)
-        return now_utc() - pub_dt < timedelta(minutes=5)
+        # Allow articles up to 30 minutes old so nothing gets missed
+        return now_utc() - pub_dt < timedelta(minutes=30)
     except Exception:
         return True
 
@@ -262,7 +299,7 @@ def main():
             print(f"Fetching: {source_name}")
             feed = feedparser.parse(url, request_headers={"User-Agent": "Mozilla/5.0"})
             print(f"  → {len(feed.entries)} entries")
-            for entry in feed.entries[:15]:
+            for entry in feed.entries[:20]:
                 aid = article_id(entry)
                 if aid in seen:
                     continue
