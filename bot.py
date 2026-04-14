@@ -5,7 +5,6 @@ import os
 import hashlib
 import socket
 from datetime import datetime, timezone, timedelta
-from xml.etree import ElementTree as ET
 
 socket.setdefaulttimeout(8)
 
@@ -37,62 +36,46 @@ FEEDS = [
     ("Politico Economy",       "https://www.politico.com/rss/economy.xml"),
 ]
 
-# ── Direct government data sources ───────────────────────────────────────────
-# These post raw data the moment it drops — same time as Bloomberg Terminal
 GOV_SOURCES = [
     {
-        "name": "BLS — Bureau of Labor Statistics",
+        "name": "BLS",
         "url": "https://www.bls.gov/feed/bls_latest.rss",
-        "type": "gov",
         "keywords": ["employment","nonfarm","cpi","ppi","unemployment","jobs","inflation","consumer price","producer price","jobless"],
     },
     {
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/feeds/press_all.xml",
-        "type": "gov",
-        "keywords": ["rate","fomc","federal funds","monetary policy","balance sheet","reserve","interest","statement","minutes","beige book"],
+        "keywords": ["rate","fomc","federal funds","monetary policy","balance sheet","interest","statement","minutes","beige book"],
     },
     {
-        "name": "BEA — Bureau of Economic Analysis",
+        "name": "BEA",
         "url": "https://www.bea.gov/rss/latest_revision.xml",
-        "type": "gov",
         "keywords": ["gdp","gross domestic","personal income","pce","current account","trade","consumer spending"],
     },
     {
-        "name": "US Census Bureau",
+        "name": "US Census",
         "url": "https://www.census.gov/economic-indicators/feed.xml",
-        "type": "gov",
-        "keywords": ["retail sales","housing","construction","durable goods","trade deficit","manufacturers","shipments"],
+        "keywords": ["retail sales","housing","construction","durable goods","trade deficit","manufacturers"],
     },
     {
         "name": "US Treasury",
         "url": "https://home.treasury.gov/news/press-releases/rss.xml",
-        "type": "gov",
-        "keywords": ["debt","yield","auction","bond","note","bill","deficit","sanctions","tariff","currency"],
+        "keywords": ["debt","yield","auction","bond","deficit","sanctions","tariff","currency"],
     },
     {
         "name": "White House",
         "url": "https://www.whitehouse.gov/feed/",
-        "type": "gov",
-        "keywords": ["executive order","proclamation","tariff","trade","sanction","statement","briefing","trump"],
+        "keywords": ["executive order","proclamation","tariff","trade","sanction","statement","trump"],
     },
     {
-        "name": "EIA — Energy Information",
+        "name": "EIA",
         "url": "https://www.eia.gov/rss/press_releases.xml",
-        "type": "gov",
         "keywords": ["crude oil","petroleum","natural gas","gasoline","inventory","opec","barrel","energy"],
-    },
-    {
-        "name": "CFTC",
-        "url": "https://www.cftc.gov/rss/pressreleases.xml",
-        "type": "gov",
-        "keywords": ["commitment","futures","options","position","contract","enforcement","crypto","bitcoin"],
     },
     {
         "name": "SEC",
         "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=&datetype=custom&owner=include&count=10&search_text=&output=atom",
-        "type": "gov",
-        "keywords": ["bitcoin","etf","crypto","enforcement","fraud","filing","approval","rejection","order"],
+        "keywords": ["bitcoin","etf","crypto","enforcement","fraud","approval","rejection"],
     },
 ]
 
@@ -114,28 +97,25 @@ WHITELIST = [
     "payroll","unemployment","jobless","jobs report","retail sales",
     "trade balance","current account","fiscal","monetary policy",
     "recession","stagflation","soft landing","hard landing",
-    "middle east","israel","gaza","hamas","hezbollah","west bank","ramallah",
+    "middle east","israel","gaza","hamas","hezbollah","west bank",
     "iran","tehran","irgc","nuclear","sanctions","khamenei",
-    "saudi arabia","riyadh","mbs","crown prince",
-    "iraq","baghdad","syria","damascus","houthi","houthis",
+    "saudi arabia","riyadh","mbs","opec",
+    "iraq","baghdad","syria","houthi","houthis",
     "red sea","strait of hormuz","gulf","persian gulf",
     "yemen","drone","missile","airstrike","attack","strike",
-    "lebanon","beirut","jordan","egypt","qatar","uae","abu dhabi","dubai",
-    "trump","donald trump","white house","oval office",
+    "lebanon","beirut","egypt","qatar","uae","dubai",
+    "trump","donald trump","white house",
     "tariff","tariffs","trade war","trade deal","trade policy",
-    "executive order","veto","impeach","congress","senate","house",
-    "treasury secretary","sec chairman","fed chair",
-    "sanctions","pentagon","us military","nato","state department",
-    "debt ceiling","federal budget","deficit","spending bill",
-    "china","beijing","xi jinping","pla","taiwan","strait",
-    "hong kong","south china sea","trade","export","import",
-    "japan","bank of japan","boj","korea","north korea","kim jong",
-    "russia","putin","moscow","ukraine","kyiv","war",
-    "ecb","european central bank","lagarde","bank of england","boe",
-    "germany","france","uk","britain","eurozone","eu",
+    "executive order","congress","senate",
+    "sanctions","pentagon","us military","nato",
+    "debt ceiling","federal budget","deficit",
+    "china","beijing","xi jinping","taiwan",
+    "japan","bank of japan","boj","north korea",
+    "russia","putin","ukraine","kyiv",
+    "ecb","european central bank","bank of england","boe",
     "breaking","urgent","alert","flash","just in","developing",
-    "crash","collapse","default","bankruptcy","crisis","emergency",
-    "coup","explosion","war declared","ceasefire","peace deal",
+    "crash","collapse","default","bankruptcy","crisis",
+    "coup","explosion","ceasefire","peace deal",
 ]
 
 BLACKLIST = [
@@ -149,18 +129,37 @@ BLACKLIST = [
     "obituary","wedding","birth announcement","real estate tips",
 ]
 
-RED_FOLDER_KEYWORDS = [
-    "nonfarm payroll","nfp","non-farm","jobs report",
-    "cpi report","inflation report","core cpi","core pce",
-    "fomc","fed decision","rate decision","fed raises","fed cuts",
-    "gdp report","gdp growth","gdp shrinks",
-    "ppi report","retail sales","jobless claims",
-    "ecb decision","boe decision","bank of england","european central bank",
-    "war declared","invasion","nuclear strike","missile strike","major attack",
-    "ceasefire","peace deal","coup","assassination",
-    "market crash","circuit breaker","trading halt","flash crash",
-    "trump tariff","trump sanctions","trump executive","trump fires","trump signs",
-    "sec approves","sec rejects","bitcoin etf","crypto ban","exchange hack",
+# ── STRICT red folder — ONLY real scheduled economic releases ─────────────────
+# These are the ONLY things that get the red folder treatment and get pinned
+RED_FOLDER_STRICT = [
+    "nonfarm payroll",
+    "non-farm payroll",
+    "nfp report",
+    "jobs report",
+    "cpi report",
+    "consumer price index",
+    "core cpi",
+    "core pce",
+    "pce deflator",
+    "fomc decision",
+    "fed decision",
+    "federal reserve decision",
+    "rate decision",
+    "fed raises rates",
+    "fed cuts rates",
+    "fed holds rates",
+    "gdp report",
+    "gdp growth",
+    "gdp contracts",
+    "ppi report",
+    "producer price index",
+    "retail sales report",
+    "jobless claims report",
+    "initial claims",
+    "ecb rate decision",
+    "ecb decision",
+    "bank of england rate",
+    "boe rate decision",
 ]
 
 def get_market_tags(title, summary=""):
@@ -170,9 +169,9 @@ def get_market_tags(title, summary=""):
         tags.append("BTC")
     if any(w in text for w in ["nasdaq","nq","tech","nvidia","apple","microsoft","google","meta","amazon","tesla"]):
         tags.append("NQ")
-    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","ipo","market"]):
+    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","market"]):
         tags.append("SPX")
-    if any(w in text for w in ["gold","xau","silver","platinum","safe haven","commodity"]):
+    if any(w in text for w in ["gold","xau","silver","safe haven","commodity"]):
         tags.append("GOLD")
     if any(w in text for w in ["oil","crude","brent","wti","opec","natural gas","energy"]):
         tags.append("OIL")
@@ -182,100 +181,71 @@ def get_market_tags(title, summary=""):
         tags.append("GEO")
     return tags
 
-def tag_bar(tags):
+def tag_line(tags):
     icons = {"BTC":"₿","NQ":"📊","SPX":"🗽","GOLD":"🥇","OIL":"🛢","DXY":"💵","GEO":"🌍"}
-    return "  ".join(f"{icons.get(t,'•')} #{t}" for t in tags) if tags else ""
+    return "  ".join(f"{icons.get(t,'')} #{t}" for t in tags) if tags else ""
+
+# ── Message formats — WatcherGuru style ──────────────────────────────────────
 
 def format_normal(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"📰  <b>{title}</b>\n\n"
-        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Read full article →</a>"
-    )
+    tags = tag_line(get_market_tags(title))
+    msg = f"<b>JUST IN:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tags}"
+    msg += f"\n\n<a href='{link}'>Read more →</a>"
+    return msg
 
 def format_breaking(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"⚡ <b>BREAKING</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Read full article →</a>"
-    )
-
-def format_red(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"🔴 <b>RED FOLDER</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Read full article →</a>"
-    )
-
-def format_red_pin(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"📌 🔴 <b>RED FOLDER — PINNED</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"🏢 <i>{source}</i>   🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Full report →</a>\n\n"
-        f"<i>📌 Pinned — resets in 24 hours</i>"
-    )
+    tags = tag_line(get_market_tags(title))
+    msg = f"⚡ <b>BREAKING:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tags}"
+    msg += f"\n\n<a href='{link}'>Read more →</a>"
+    return msg
 
 def format_gov(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"🏛 <b>OFFICIAL DATA — {source}</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Official release →</a>"
-    )
+    tags = tag_line(get_market_tags(title))
+    msg = f"🏛 <b>OFFICIAL DATA:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tags}"
+    msg += f"\n\n<a href='{link}'>Official release →</a>"
+    return msg
 
-def format_gov_pin(source, title, link, pub_time):
-    tags = tag_bar(get_market_tags(title))
-    return (
-        f"📌 🏛 <b>OFFICIAL DATA — PINNED</b>\n\n"
-        f"<b>{source}</b>\n"
+def format_red_folder(source, title, link, pub_time):
+    tags = tag_line(get_market_tags(title))
+    msg = (
+        f"🔴 <b>RED FOLDER</b>\n\n"
         f"<b>{title}</b>\n\n"
-        f"🕐 {pub_time}\n"
-        f"{tags}\n\n"
-        f"🔗 <a href='{link}'>Official release →</a>\n\n"
-        f"<i>📌 Pinned — resets in 24 hours</i>"
+        f"<i>@{source}</i>  •  {pub_time}"
     )
+    if tags:
+        msg += f"\n{tags}"
+    msg += f"\n\n<a href='{link}'>Full report →</a>"
+    return msg
+
+def format_red_folder_pin(source, title, link, pub_time):
+    tags = tag_line(get_market_tags(title))
+    msg = (
+        f"📌 🔴 <b>RED FOLDER — PINNED</b>\n\n"
+        f"<b>{title}</b>\n\n"
+        f"<i>@{source}</i>  •  {pub_time}"
+    )
+    if tags:
+        msg += f"\n{tags}"
+    msg += f"\n\n<a href='{link}'>Full report →</a>"
+    msg += f"\n\n<i>Pinned • resets in 24 hours</i>"
+    return msg
 
 def now_utc():
     return datetime.now(timezone.utc)
 
-def pub_time_str(entry):
-    try:
-        pub = entry.get("published_parsed") or entry.get("updated_parsed")
-        if not pub:
-            return now_utc().strftime("%d %b %H:%M UTC")
-        return datetime(*pub[:6], tzinfo=timezone.utc).strftime("%d %b %H:%M UTC")
-    except Exception:
-        return now_utc().strftime("%d %b %H:%M UTC")
-
-def pub_time_str_raw(pub_parsed):
+def pub_time_str(pub_parsed):
     try:
         if not pub_parsed:
             return now_utc().strftime("%d %b %H:%M UTC")
         return datetime(*pub_parsed[:6], tzinfo=timezone.utc).strftime("%d %b %H:%M UTC")
     except Exception:
         return now_utc().strftime("%d %b %H:%M UTC")
-
-def is_recent_dt(pub_parsed, minutes=30):
-    try:
-        if not pub_parsed:
-            return True
-        pub_dt = datetime(*pub_parsed[:6], tzinfo=timezone.utc)
-        return now_utc() - pub_dt < timedelta(minutes=minutes)
-    except Exception:
-        return True
 
 def load_json(path, default):
     if os.path.exists(path):
@@ -350,7 +320,18 @@ def is_breaking(title):
     return any(w in title.lower() for w in ["breaking","urgent","alert","flash","just in","developing"])
 
 def is_red_folder(title, summary=""):
-    return any(r in (title + " " + summary).lower() for r in RED_FOLDER_KEYWORDS)
+    # STRICT — only exact economic release phrases qualify
+    text = (title + " " + summary).lower()
+    return any(phrase in text for phrase in RED_FOLDER_STRICT)
+
+def is_recent(pub_parsed, minutes=30):
+    try:
+        if not pub_parsed:
+            return True
+        pub_dt = datetime(*pub_parsed[:6], tzinfo=timezone.utc)
+        return now_utc() - pub_dt < timedelta(minutes=minutes)
+    except Exception:
+        return True
 
 def cleanup_old_pins():
     pinned = load_json(PINNED_FILE, {})
@@ -371,63 +352,52 @@ def cleanup_old_pins():
         save_json(PINNED_FILE, pinned)
     return pinned
 
-# ── Fetch government sources ──────────────────────────────────────────────────
-def fetch_gov_sources(seen, pinned):
-    gov_articles = []
-
+def fetch_gov_sources(seen):
+    articles = []
     for source in GOV_SOURCES:
         try:
             print(f"Fetching gov: {source['name']}")
-            resp = requests.get(
-                source["url"],
-                headers={"User-Agent": "Mozilla/5.0"},
-                timeout=8
-            )
+            resp = requests.get(source["url"], headers={"User-Agent": "Mozilla/5.0"}, timeout=8)
             if not resp.ok:
                 print(f"  → HTTP {resp.status_code}")
                 continue
-
             feed = feedparser.parse(resp.content)
             print(f"  → {len(feed.entries)} entries")
-
             for entry in feed.entries[:10]:
                 aid = article_id(entry)
                 if aid in seen:
                     continue
-
                 title = entry.get("title", "").strip()
                 summary = entry.get("summary", "")
                 link = entry.get("link", "")
                 pub = entry.get("published_parsed") or entry.get("updated_parsed")
-
                 if not title:
                     continue
-
-                # Gov sources: allow up to 60 min old since they post infrequently
-                if not is_recent_dt(pub, minutes=60):
+                if not is_recent(pub, minutes=60):
                     continue
-
                 text = (title + " " + summary).lower()
-                matched = any(kw in text for kw in source["keywords"])
-                if not matched:
+                if not any(kw in text for kw in source["keywords"]):
                     continue
-
-                pub_time = pub_time_str_raw(pub)
                 red = is_red_folder(title, summary)
-                gov_articles.append((source["name"], title, link, aid, red, pub_time))
-                flag = "🔴" if red else "🏛"
-                print(f"  {flag} {title[:70]}")
-
+                articles.append({
+                    "source": source["name"],
+                    "title": title,
+                    "link": link,
+                    "aid": aid,
+                    "pub": pub,
+                    "red": red,
+                    "breaking": False,
+                    "gov": True,
+                })
+                print(f"  {'🔴' if red else '🏛'} {title[:70]}")
         except Exception as e:
-            print(f"Error fetching {source['name']}: {e}")
+            print(f"Error fetching gov {source['name']}: {e}")
+    return articles
 
-    return gov_articles
-
-# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     seen = load_seen()
     pinned = cleanup_old_pins()
-    new_articles = []
+    all_articles = []
 
     # ── Regular RSS feeds ─────────────────────────────────────────────────────
     for source_name, url in FEEDS:
@@ -443,93 +413,69 @@ def main():
                 summary = entry.get("summary", "")
                 link = entry.get("link", "")
                 pub = entry.get("published_parsed") or entry.get("updated_parsed")
-                if is_relevant(title, summary) and is_recent_dt(pub, minutes=30):
-                    red = is_red_folder(title, summary)
-                    breaking = is_breaking(title)
-                    pub_time = pub_time_str_raw(pub)
-                    new_articles.append({
+                if is_relevant(title, summary) and is_recent(pub, minutes=30):
+                    all_articles.append({
                         "source": source_name,
                         "title": title,
                         "link": link,
                         "aid": aid,
-                        "breaking": breaking,
-                        "red": red,
-                        "pub_time": pub_time,
+                        "pub": pub,
+                        "red": is_red_folder(title, summary),
+                        "breaking": is_breaking(title),
                         "gov": False,
                     })
-                    flag = "🔴" if red else ("⚡" if breaking else "✓")
+                    flag = "🔴" if is_red_folder(title, summary) else ("⚡" if is_breaking(title) else "✓")
                     print(f"  {flag} {title[:70]}")
         except Exception as e:
             print(f"Error fetching {source_name}: {e}")
 
     # ── Government sources ────────────────────────────────────────────────────
-    gov_articles = fetch_gov_sources(seen, pinned)
-    for source, title, link, aid, red, pub_time in gov_articles:
-        new_articles.append({
-            "source": source,
-            "title": title,
-            "link": link,
-            "aid": aid,
-            "breaking": False,
-            "red": red,
-            "pub_time": pub_time,
-            "gov": True,
-        })
+    all_articles.extend(fetch_gov_sources(seen))
 
-    # Sort: gov red > red > gov normal > breaking > normal
+    # Sort: red folder first → gov → breaking → normal
     def sort_key(a):
-        if a["gov"] and a["red"]:   return 0
-        if a["red"]:                return 1
-        if a["gov"]:                return 2
-        if a["breaking"]:           return 3
-        return 4
+        if a["red"]:      return 0
+        if a["gov"]:      return 1
+        if a["breaking"]: return 2
+        return 3
 
-    new_articles.sort(key=sort_key)
-    print(f"\nTotal new relevant articles: {len(new_articles)}")
+    all_articles.sort(key=sort_key)
+    print(f"\nTotal new articles: {len(all_articles)}")
 
     sent = 0
-    for a in new_articles:
+    for a in all_articles:
         source   = a["source"]
         title    = a["title"]
         link     = a["link"]
         aid      = a["aid"]
-        breaking = a["breaking"]
+        pub      = a["pub"]
         red      = a["red"]
-        pub_time = a["pub_time"]
+        breaking = a["breaking"]
         gov      = a["gov"]
+        pub_time = pub_time_str(pub)
+        pin_key  = make_id(title[:60])
 
-        pin_key = make_id(title[:60])
-
-        if gov and red:
+        if red:
+            # First time seeing this red folder event → pin it
             if pin_key not in pinned:
-                msg = format_gov_pin(source, title, link, pub_time)
+                msg = format_red_folder_pin(source, title, link, pub_time)
                 message_id = send_message(msg)
                 if message_id:
                     pin_message(message_id)
-                    pinned[pin_key] = {"message_id": message_id, "pinned_at": now_utc().isoformat(), "title": title[:60]}
+                    pinned[pin_key] = {
+                        "message_id": message_id,
+                        "pinned_at": now_utc().isoformat(),
+                        "title": title[:60],
+                    }
                     save_json(PINNED_FILE, pinned)
-                    print(f"  → 📌 Gov pinned: {title[:60]}")
+                    print(f"  → 📌 RED FOLDER pinned: {title[:60]}")
             else:
-                message_id = send_message(format_gov(source, title, link, pub_time))
-
+                # Already pinned, send as regular red folder message
+                message_id = send_message(format_red_folder(source, title, link, pub_time))
         elif gov:
             message_id = send_message(format_gov(source, title, link, pub_time))
-
-        elif red:
-            if pin_key not in pinned:
-                msg = format_red_pin(source, title, link, pub_time)
-                message_id = send_message(msg)
-                if message_id:
-                    pin_message(message_id)
-                    pinned[pin_key] = {"message_id": message_id, "pinned_at": now_utc().isoformat(), "title": title[:60]}
-                    save_json(PINNED_FILE, pinned)
-                    print(f"  → 📌 Pinned: {title[:60]}")
-            else:
-                message_id = send_message(format_red(source, title, link, pub_time))
-
         elif breaking:
             message_id = send_message(format_breaking(source, title, link, pub_time))
-
         else:
             message_id = send_message(format_normal(source, title, link, pub_time))
 
