@@ -20,20 +20,14 @@ FEEDS = [
     ("Reuters Politics",       "https://feeds.reuters.com/Reuters/politicsNews"),
     ("MarketWatch",            "https://feeds.marketwatch.com/marketwatch/topstories/"),
     ("CNBC Markets",           "https://www.cnbc.com/id/10000664/device/rss/rss.html"),
-    ("CNBC Politics",          "https://www.cnbc.com/id/10000115/device/rss/rss.html"),
     ("CNBC Economy",           "https://www.cnbc.com/id/20910258/device/rss/rss.html"),
     ("Investing.com",          "https://www.investing.com/rss/news.rss"),
-    ("Investing.com Analysis", "https://www.investing.com/rss/news_25.rss"),
     ("Yahoo Finance",          "https://finance.yahoo.com/rss/"),
     ("Forexlive",              "https://www.forexlive.com/feed/news"),
-    ("Forexlive Analysis",     "https://www.forexlive.com/feed/analysis"),
-    ("Nasdaq",                 "https://www.nasdaq.com/feed/rssoutput.aspx"),
     ("CoinDesk",               "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph",          "https://cointelegraph.com/rss"),
     ("Al Jazeera",             "https://www.aljazeera.com/xml/rss/all.xml"),
     ("Middle East Eye",        "https://www.middleeasteye.net/rss"),
-    ("Axios Markets",          "https://api.axios.com/feed/markets"),
-    ("Politico Economy",       "https://www.politico.com/rss/economy.xml"),
 ]
 
 GOV_SOURCES = [
@@ -45,79 +39,79 @@ GOV_SOURCES = [
     {
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/feeds/press_all.xml",
-        "keywords": ["rate","fomc","federal funds","monetary policy","balance sheet","interest","statement","minutes","beige book"],
+        "keywords": ["rate","fomc","federal funds","monetary policy","interest","statement","minutes"],
     },
     {
         "name": "BEA",
         "url": "https://www.bea.gov/rss/latest_revision.xml",
-        "keywords": ["gdp","gross domestic","personal income","pce","current account","trade","consumer spending"],
-    },
-    {
-        "name": "US Census",
-        "url": "https://www.census.gov/economic-indicators/feed.xml",
-        "keywords": ["retail sales","housing","construction","durable goods","trade deficit","manufacturers"],
+        "keywords": ["gdp","gross domestic","personal income","pce","consumer spending"],
     },
     {
         "name": "US Treasury",
         "url": "https://home.treasury.gov/news/press-releases/rss.xml",
-        "keywords": ["debt","yield","auction","bond","deficit","sanctions","tariff","currency"],
+        "keywords": ["sanctions","tariff","currency","debt","deficit"],
     },
     {
         "name": "White House",
         "url": "https://www.whitehouse.gov/feed/",
-        "keywords": ["executive order","proclamation","tariff","trade","sanction","statement","trump"],
+        "keywords": ["executive order","tariff","trade","sanction","trump"],
     },
     {
         "name": "EIA",
         "url": "https://www.eia.gov/rss/press_releases.xml",
-        "keywords": ["crude oil","petroleum","natural gas","gasoline","inventory","opec","barrel","energy"],
-    },
-    {
-        "name": "SEC",
-        "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=&datetype=custom&owner=include&count=10&search_text=&output=atom",
-        "keywords": ["bitcoin","etf","crypto","enforcement","fraud","approval","rejection"],
+        "keywords": ["crude oil","petroleum","natural gas","inventory","opec","energy"],
     },
 ]
 
-WHITELIST = [
-    "bitcoin","btc","crypto","ethereum","eth","coinbase","binance","defi",
-    "stablecoin","blockchain","web3","altcoin","solana","ripple","xrp","etf",
-    "nasdaq","nq","s&p","spx","dow jones","dow","russell","stock","stocks",
-    "equity","equities","earnings","revenue","profit","loss","guidance",
-    "ipo","merger","acquisition","buyback","dividend",
-    "nvidia","apple","microsoft","google","alphabet","meta","amazon","tesla",
-    "jpmorgan","goldman","morgan stanley","blackrock","berkshire",
-    "gold","xau","silver","platinum","copper",
-    "crude oil","brent","wti","natural gas","energy","opec",
-    "commodity","commodities","safe haven",
-    "dollar","usd","dxy","euro","eur","yen","jpy","pound","gbp",
-    "treasury","yield","bond","10-year","2-year","spread",
-    "fed","federal reserve","fomc","powell","rate decision","rate hike","rate cut",
-    "inflation","deflation","cpi","ppi","pce","gdp","nonfarm","nfp",
-    "payroll","unemployment","jobless","jobs report","retail sales",
-    "trade balance","current account","fiscal","monetary policy",
-    "recession","stagflation","soft landing","hard landing",
-    "middle east","israel","gaza","hamas","hezbollah","west bank",
-    "iran","tehran","irgc","nuclear","sanctions","khamenei",
-    "saudi arabia","riyadh","mbs","opec",
-    "iraq","baghdad","syria","houthi","houthis",
-    "red sea","strait of hormuz","gulf","persian gulf",
-    "yemen","drone","missile","airstrike","attack","strike",
-    "lebanon","beirut","egypt","qatar","uae","dubai",
-    "trump","donald trump","white house",
-    "tariff","tariffs","trade war","trade deal","trade policy",
-    "executive order","congress","senate",
-    "sanctions","pentagon","us military","nato",
-    "debt ceiling","federal budget","deficit",
-    "china","beijing","xi jinping","taiwan",
-    "japan","bank of japan","boj","north korea",
-    "russia","putin","ukraine","kyiv",
-    "ecb","european central bank","bank of england","boe",
-    "breaking","urgent","alert","flash","just in","developing",
-    "crash","collapse","default","bankruptcy","crisis",
-    "coup","explosion","ceasefire","peace deal",
+# ── TIER 1: Must-send — these always get through no matter what ───────────────
+TIER1_KEYWORDS = [
+    # Hard economic data releases
+    "nonfarm payroll","non-farm payroll","jobs report","nfp",
+    "cpi report","consumer price index","core cpi","inflation report",
+    "pce deflator","core pce",
+    "fomc","fed decision","rate decision","fed raises","fed cuts","fed holds",
+    "gdp report","gdp growth","gdp contracts","gdp shrinks",
+    "ppi report","producer price index",
+    "retail sales report","jobless claims",
+    "ecb rate","ecb decision","bank of england rate","boe decision",
+    # Geopolitical shocks
+    "war declared","invasion begins","nuclear strike","missile strike",
+    "ceasefire agreement","peace deal signed","coup","assassination",
+    "market crash","trading halt","circuit breaker","flash crash",
+    # Trump hard moves
+    "trump signs","trump imposes","trump announces tariff","trump sanctions",
+    "executive order signed",
+    # Crypto hard events
+    "bitcoin etf approved","bitcoin etf rejected","crypto ban","exchange hack",
+    "sec approves","sec rejects",
+    # Central bank surprises
+    "emergency rate cut","emergency rate hike","surprise rate",
+    "quantitative easing","quantitative tightening",
 ]
 
+# ── TIER 2: Important but needs TWO keyword matches to pass ───────────────────
+TIER2_KEYWORDS = [
+    "bitcoin","btc","ethereum","eth","crypto","solana","xrp",
+    "nasdaq","s&p 500","spx","dow jones",
+    "gold","xau","crude oil","brent","wti","opec",
+    "federal reserve","fed","powell","fomc",
+    "inflation","cpi","ppi","gdp","unemployment","payroll",
+    "tariff","trade war","trade deal","sanctions",
+    "trump","white house",
+    "israel","gaza","iran","hamas","hezbollah","houthi",
+    "middle east","red sea","strait of hormuz",
+    "ukraine","russia","putin","nato",
+    "china","xi jinping","taiwan",
+    "dollar","dxy","treasury yield","bond yield",
+    "rate hike","rate cut","interest rate",
+    "earnings","revenue miss","profit warning",
+    "recession","default","bankruptcy","crisis",
+    "breaking","urgent","just in",
+    "opec","oil supply","oil cut","oil output",
+    "saudi arabia","iran nuclear","north korea",
+]
+
+# ── BLACKLIST: never send these ───────────────────────────────────────────────
 BLACKLIST = [
     "horoscope","zodiac","celebrity","kardashian","oscars","grammy",
     "recipe","fashion","beauty","makeup","skincare","lifestyle",
@@ -127,39 +121,49 @@ BLACKLIST = [
     "weather forecast","gardening","home decor",
     "social media trend","tiktok","instagram","viral","meme",
     "obituary","wedding","birth announcement","real estate tips",
+    "quiz","how to","best ways","top 10","listicle",
+    "review","preview","explainer","what is","guide to",
 ]
 
-# ── STRICT red folder — ONLY real scheduled economic releases ─────────────────
-# These are the ONLY things that get the red folder treatment and get pinned
+# ── STRICT red folder phrases — ONLY these get pinned ────────────────────────
 RED_FOLDER_STRICT = [
     "nonfarm payroll",
     "non-farm payroll",
-    "nfp report",
     "jobs report",
-    "cpi report",
+    "nfp report",
     "consumer price index",
+    "cpi report",
     "core cpi",
     "core pce",
     "pce deflator",
     "fomc decision",
     "fed decision",
-    "federal reserve decision",
     "rate decision",
     "fed raises rates",
     "fed cuts rates",
     "fed holds rates",
+    "emergency rate cut",
+    "emergency rate hike",
+    "surprise rate cut",
+    "surprise rate hike",
     "gdp report",
     "gdp growth",
     "gdp contracts",
-    "ppi report",
     "producer price index",
+    "ppi report",
     "retail sales report",
     "jobless claims report",
-    "initial claims",
     "ecb rate decision",
     "ecb decision",
     "bank of england rate",
     "boe rate decision",
+    "war declared",
+    "invasion begins",
+    "market crash",
+    "trading halt",
+    "circuit breaker",
+    "bitcoin etf approved",
+    "bitcoin etf rejected",
 ]
 
 def get_market_tags(title, summary=""):
@@ -167,74 +171,54 @@ def get_market_tags(title, summary=""):
     tags = []
     if any(w in text for w in ["bitcoin","btc","crypto","ethereum","eth","coinbase","binance","solana","xrp"]):
         tags.append("BTC")
-    if any(w in text for w in ["nasdaq","nq","tech","nvidia","apple","microsoft","google","meta","amazon","tesla"]):
+    if any(w in text for w in ["nasdaq","nq","nvidia","apple","microsoft","google","meta","amazon","tesla","tech stock"]):
         tags.append("NQ")
-    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","market"]):
+    if any(w in text for w in ["s&p","spx","dow","stocks","equity","earnings","market rally","market sell"]):
         tags.append("SPX")
-    if any(w in text for w in ["gold","xau","silver","safe haven","commodity"]):
+    if any(w in text for w in ["gold","xau","silver","safe haven"]):
         tags.append("GOLD")
     if any(w in text for w in ["oil","crude","brent","wti","opec","natural gas","energy"]):
         tags.append("OIL")
     if any(w in text for w in ["dollar","dxy","usd","fed","fomc","rate","inflation","cpi","ppi","gdp","treasury","yield","bond"]):
         tags.append("DXY")
-    if any(w in text for w in ["middle east","israel","gaza","iran","saudi","houthi","ukraine","russia","china","taiwan","war","attack","strike"]):
+    if any(w in text for w in ["middle east","israel","gaza","iran","saudi","houthi","ukraine","russia","china","taiwan","war","attack","strike","missile","drone"]):
         tags.append("GEO")
     return tags
 
 def tag_line(tags):
     icons = {"BTC":"₿","NQ":"📊","SPX":"🗽","GOLD":"🥇","OIL":"🛢","DXY":"💵","GEO":"🌍"}
-    return "  ".join(f"{icons.get(t,'')} #{t}" for t in tags) if tags else ""
+    return "  ".join(f"{icons[t]} #{t}" for t in tags) if tags else ""
 
-# ── Message formats — WatcherGuru style ──────────────────────────────────────
+def is_tier1(title, summary=""):
+    text = (title + " " + summary).lower()
+    return any(phrase in text for phrase in TIER1_KEYWORDS)
 
-def format_normal(source, title, link, pub_time):
-    tags = tag_line(get_market_tags(title))
-    msg = f"<b>JUST IN:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
-    if tags:
-        msg += f"\n{tags}"
-    msg += f"\n\n<a href='{link}'>Read more →</a>"
-    return msg
+def is_tier2(title, summary=""):
+    text = (title + " " + summary).lower()
+    matches = sum(1 for kw in TIER2_KEYWORDS if kw in text)
+    return matches >= 2
 
-def format_breaking(source, title, link, pub_time):
-    tags = tag_line(get_market_tags(title))
-    msg = f"⚡ <b>BREAKING:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
-    if tags:
-        msg += f"\n{tags}"
-    msg += f"\n\n<a href='{link}'>Read more →</a>"
-    return msg
+def is_important(title, summary=""):
+    text = (title + " " + summary).lower()
+    if any(b in text for b in BLACKLIST):
+        return False
+    return is_tier1(title, summary) or is_tier2(title, summary)
 
-def format_gov(source, title, link, pub_time):
-    tags = tag_line(get_market_tags(title))
-    msg = f"🏛 <b>OFFICIAL DATA:</b> {title}\n\n<i>@{source}</i>  •  {pub_time}"
-    if tags:
-        msg += f"\n{tags}"
-    msg += f"\n\n<a href='{link}'>Official release →</a>"
-    return msg
+def is_red_folder(title, summary=""):
+    text = (title + " " + summary).lower()
+    return any(phrase in text for phrase in RED_FOLDER_STRICT)
 
-def format_red_folder(source, title, link, pub_time):
-    tags = tag_line(get_market_tags(title))
-    msg = (
-        f"🔴 <b>RED FOLDER</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"<i>@{source}</i>  •  {pub_time}"
-    )
-    if tags:
-        msg += f"\n{tags}"
-    msg += f"\n\n<a href='{link}'>Full report →</a>"
-    return msg
+def is_breaking(title):
+    return any(w in title.lower() for w in ["breaking","urgent","alert","flash","just in","developing"])
 
-def format_red_folder_pin(source, title, link, pub_time):
-    tags = tag_line(get_market_tags(title))
-    msg = (
-        f"📌 🔴 <b>RED FOLDER — PINNED</b>\n\n"
-        f"<b>{title}</b>\n\n"
-        f"<i>@{source}</i>  •  {pub_time}"
-    )
-    if tags:
-        msg += f"\n{tags}"
-    msg += f"\n\n<a href='{link}'>Full report →</a>"
-    msg += f"\n\n<i>Pinned • resets in 24 hours</i>"
-    return msg
+def is_recent(pub_parsed, minutes=30):
+    try:
+        if not pub_parsed:
+            return True
+        pub_dt = datetime(*pub_parsed[:6], tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) - pub_dt < timedelta(minutes=minutes)
+    except Exception:
+        return True
 
 def now_utc():
     return datetime.now(timezone.utc)
@@ -246,6 +230,14 @@ def pub_time_str(pub_parsed):
         return datetime(*pub_parsed[:6], tzinfo=timezone.utc).strftime("%d %b %H:%M UTC")
     except Exception:
         return now_utc().strftime("%d %b %H:%M UTC")
+
+def article_id(entry):
+    return hashlib.md5(
+        (entry.get("id") or entry.get("link","") or entry.get("title","")).encode()
+    ).hexdigest()
+
+def make_id(text):
+    return hashlib.md5(text.encode()).hexdigest()
 
 def load_json(path, default):
     if os.path.exists(path):
@@ -279,7 +271,7 @@ def send_message(text):
         if not resp.ok:
             print(f"Telegram error: {resp.status_code} {resp.text}")
             return None
-        return resp.json().get("result", {}).get("message_id")
+        return resp.json().get("result",{}).get("message_id")
     except Exception as e:
         print(f"Send failed: {e}")
         return None
@@ -287,7 +279,9 @@ def send_message(text):
 def pin_message(message_id):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/pinChatMessage"
     try:
-        resp = requests.post(url, json={"chat_id": CHANNEL_ID, "message_id": message_id}, timeout=10)
+        resp = requests.post(url, json={"chat_id": CHANNEL_ID, "message_id": message_id, "disable_notification": False}, timeout=10)
+        if not resp.ok:
+            print(f"Pin error: {resp.status_code} {resp.text}")
         return resp.ok
     except Exception as e:
         print(f"Pin failed: {e}")
@@ -302,36 +296,47 @@ def unpin_message(message_id):
         print(f"Unpin failed: {e}")
         return False
 
-def article_id(entry):
-    return hashlib.md5(
-        (entry.get("id") or entry.get("link", "") or entry.get("title", "")).encode()
-    ).hexdigest()
+# ── Message formats — headline only, no links ─────────────────────────────────
 
-def make_id(text):
-    return hashlib.md5(text.encode()).hexdigest()
+def format_normal(source, title, pub_time, tags):
+    msg = f"<b>{title}</b>\n\n"
+    msg += f"<i>{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tag_line(tags)}"
+    return msg
 
-def is_relevant(title, summary=""):
-    text = (title + " " + summary).lower()
-    if any(b in text for b in BLACKLIST):
-        return False
-    return any(w in text for w in WHITELIST)
+def format_breaking(source, title, pub_time, tags):
+    msg = f"⚡ <b>BREAKING</b>\n\n"
+    msg += f"<b>{title}</b>\n\n"
+    msg += f"<i>{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tag_line(tags)}"
+    return msg
 
-def is_breaking(title):
-    return any(w in title.lower() for w in ["breaking","urgent","alert","flash","just in","developing"])
+def format_gov(source, title, pub_time, tags):
+    msg = f"🏛 <b>OFFICIAL DATA</b>\n\n"
+    msg += f"<b>{title}</b>\n\n"
+    msg += f"<i>{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tag_line(tags)}"
+    return msg
 
-def is_red_folder(title, summary=""):
-    # STRICT — only exact economic release phrases qualify
-    text = (title + " " + summary).lower()
-    return any(phrase in text for phrase in RED_FOLDER_STRICT)
+def format_red_folder(source, title, pub_time, tags):
+    msg = f"🔴 <b>RED FOLDER</b>\n\n"
+    msg += f"<b>{title}</b>\n\n"
+    msg += f"<i>{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tag_line(tags)}"
+    return msg
 
-def is_recent(pub_parsed, minutes=30):
-    try:
-        if not pub_parsed:
-            return True
-        pub_dt = datetime(*pub_parsed[:6], tzinfo=timezone.utc)
-        return now_utc() - pub_dt < timedelta(minutes=minutes)
-    except Exception:
-        return True
+def format_red_folder_pin(source, title, pub_time, tags):
+    msg = f"📌 🔴 <b>RED FOLDER — PINNED</b>\n\n"
+    msg += f"<b>{title}</b>\n\n"
+    msg += f"<i>{source}</i>  •  {pub_time}"
+    if tags:
+        msg += f"\n{tag_line(tags)}"
+    msg += f"\n\n<i>📌 Pinned  •  resets in 24 hours</i>"
+    return msg
 
 def cleanup_old_pins():
     pinned = load_json(PINNED_FILE, {})
@@ -340,58 +345,56 @@ def cleanup_old_pins():
     for key in list(pinned.keys()):
         pinned_at = pinned[key].get("pinned_at")
         if pinned_at:
-            pinned_dt = datetime.fromisoformat(pinned_at)
-            if (now - pinned_dt).total_seconds() > 86400:
-                msg_id = pinned[key].get("message_id")
-                if msg_id:
-                    unpin_message(msg_id)
-                    print(f"24hr reset — unpinned: {key[:40]}")
+            try:
+                pinned_dt = datetime.fromisoformat(pinned_at)
+                if (now - pinned_dt).total_seconds() > 86400:
+                    msg_id = pinned[key].get("message_id")
+                    if msg_id:
+                        unpin_message(msg_id)
+                        print(f"24hr reset — unpinned: {pinned[key].get('title','')[:40]}")
+                    del pinned[key]
+                    changed = True
+            except Exception:
                 del pinned[key]
                 changed = True
     if changed:
         save_json(PINNED_FILE, pinned)
     return pinned
 
-def fetch_gov_sources(seen):
+def fetch_gov(seen):
     articles = []
     for source in GOV_SOURCES:
         try:
-            print(f"Fetching gov: {source['name']}")
+            print(f"Gov: {source['name']}")
             resp = requests.get(source["url"], headers={"User-Agent": "Mozilla/5.0"}, timeout=8)
             if not resp.ok:
-                print(f"  → HTTP {resp.status_code}")
                 continue
             feed = feedparser.parse(resp.content)
-            print(f"  → {len(feed.entries)} entries")
             for entry in feed.entries[:10]:
                 aid = article_id(entry)
                 if aid in seen:
                     continue
-                title = entry.get("title", "").strip()
-                summary = entry.get("summary", "")
-                link = entry.get("link", "")
+                title = entry.get("title","").strip()
+                summary = entry.get("summary","")
+                link = entry.get("link","")
                 pub = entry.get("published_parsed") or entry.get("updated_parsed")
-                if not title:
+                if not title or not is_recent(pub, minutes=60):
                     continue
-                if not is_recent(pub, minutes=60):
-                    continue
-                text = (title + " " + summary).lower()
+                text = (title+" "+summary).lower()
                 if not any(kw in text for kw in source["keywords"]):
                     continue
-                red = is_red_folder(title, summary)
                 articles.append({
                     "source": source["name"],
                     "title": title,
-                    "link": link,
                     "aid": aid,
                     "pub": pub,
-                    "red": red,
+                    "red": is_red_folder(title, summary),
                     "breaking": False,
                     "gov": True,
                 })
-                print(f"  {'🔴' if red else '🏛'} {title[:70]}")
+                print(f"  {'🔴' if is_red_folder(title,summary) else '🏛'} {title[:70]}")
         except Exception as e:
-            print(f"Error fetching gov {source['name']}: {e}")
+            print(f"Gov error {source['name']}: {e}")
     return articles
 
 def main():
@@ -399,7 +402,7 @@ def main():
     pinned = cleanup_old_pins()
     all_articles = []
 
-    # ── Regular RSS feeds ─────────────────────────────────────────────────────
+    # ── RSS feeds ─────────────────────────────────────────────────────────────
     for source_name, url in FEEDS:
         try:
             print(f"Fetching: {source_name}")
@@ -409,30 +412,28 @@ def main():
                 aid = article_id(entry)
                 if aid in seen:
                     continue
-                title = entry.get("title", "")
-                summary = entry.get("summary", "")
-                link = entry.get("link", "")
+                title = entry.get("title","")
+                summary = entry.get("summary","")
                 pub = entry.get("published_parsed") or entry.get("updated_parsed")
-                if is_relevant(title, summary) and is_recent(pub, minutes=30):
+                if is_important(title, summary) and is_recent(pub, minutes=30):
                     all_articles.append({
                         "source": source_name,
                         "title": title,
-                        "link": link,
                         "aid": aid,
                         "pub": pub,
                         "red": is_red_folder(title, summary),
                         "breaking": is_breaking(title),
                         "gov": False,
                     })
-                    flag = "🔴" if is_red_folder(title, summary) else ("⚡" if is_breaking(title) else "✓")
+                    flag = "🔴" if is_red_folder(title,summary) else ("⚡" if is_breaking(title) else "✓")
                     print(f"  {flag} {title[:70]}")
         except Exception as e:
-            print(f"Error fetching {source_name}: {e}")
+            print(f"Error {source_name}: {e}")
 
     # ── Government sources ────────────────────────────────────────────────────
-    all_articles.extend(fetch_gov_sources(seen))
+    all_articles.extend(fetch_gov(seen))
 
-    # Sort: red folder first → gov → breaking → normal
+    # Sort: red > gov > breaking > normal
     def sort_key(a):
         if a["red"]:      return 0
         if a["gov"]:      return 1
@@ -440,52 +441,72 @@ def main():
         return 3
 
     all_articles.sort(key=sort_key)
-    print(f"\nTotal new articles: {len(all_articles)}")
+    print(f"\nTotal: {len(all_articles)} articles")
 
     sent = 0
     for a in all_articles:
         source   = a["source"]
         title    = a["title"]
-        link     = a["link"]
         aid      = a["aid"]
         pub      = a["pub"]
         red      = a["red"]
         breaking = a["breaking"]
         gov      = a["gov"]
         pub_time = pub_time_str(pub)
+        tags     = get_market_tags(title)
         pin_key  = make_id(title[:60])
 
         if red:
-            # First time seeing this red folder event → pin it
             if pin_key not in pinned:
-                msg = format_red_folder_pin(source, title, link, pub_time)
+                # Send pinned red folder
+                msg = format_red_folder_pin(source, title, pub_time, tags)
                 message_id = send_message(msg)
                 if message_id:
-                    pin_message(message_id)
-                    pinned[pin_key] = {
-                        "message_id": message_id,
-                        "pinned_at": now_utc().isoformat(),
-                        "title": title[:60],
-                    }
-                    save_json(PINNED_FILE, pinned)
-                    print(f"  → 📌 RED FOLDER pinned: {title[:60]}")
+                    success = pin_message(message_id)
+                    print(f"  → Pin attempt: {'✅' if success else '❌'} message_id={message_id}")
+                    if success:
+                        pinned[pin_key] = {
+                            "message_id": message_id,
+                            "pinned_at": now_utc().isoformat(),
+                            "title": title[:60],
+                        }
+                        save_json(PINNED_FILE, pinned)
+                    seen.add(aid)
+                    sent += 1
             else:
-                # Already pinned, send as regular red folder message
-                message_id = send_message(format_red_folder(source, title, link, pub_time))
-        elif gov:
-            message_id = send_message(format_gov(source, title, link, pub_time))
-        elif breaking:
-            message_id = send_message(format_breaking(source, title, link, pub_time))
-        else:
-            message_id = send_message(format_normal(source, title, link, pub_time))
+                # Duplicate red folder event — send without pinning
+                msg = format_red_folder(source, title, pub_time, tags)
+                message_id = send_message(msg)
+                if message_id:
+                    seen.add(aid)
+                    sent += 1
 
-        if message_id:
-            seen.add(aid)
-            sent += 1
+        elif gov:
+            msg = format_gov(source, title, pub_time, tags)
+            message_id = send_message(msg)
+            if message_id:
+                seen.add(aid)
+                sent += 1
+
+        elif breaking:
+            msg = format_breaking(source, title, pub_time, tags)
+            message_id = send_message(msg)
+            if message_id:
+                seen.add(aid)
+                sent += 1
+
+        else:
+            msg = format_normal(source, title, pub_time, tags)
+            message_id = send_message(msg)
+            if message_id:
+                seen.add(aid)
+                sent += 1
+
+        if sent > 0:
             print(f"Sent: {title[:60]}")
 
     save_seen(seen)
-    print(f"\nDone. Sent {sent} new articles.")
+    print(f"\nDone. Sent {sent} articles.")
 
 if __name__ == "__main__":
     main()
