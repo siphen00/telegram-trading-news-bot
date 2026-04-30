@@ -1,9 +1,4 @@
 {
-  "5ccd6450e390587a95a46e84a841bcc2": {
-    "message_id": 3222,
-    "pinned_at": "2026-04-29T07:15:10.991947+00:00",
-    "title": "Bitcoin steady near $77k as Fed decision looms; Hormuz tensi"
-  },
   "a98f681933c0ac94ee064a403d892b22": {
     "message_id": 3247,
     "pinned_at": "2026-04-29T18:20:45.255532+00:00",
@@ -18,5 +13,10 @@
     "message_id": 3281,
     "pinned_at": "2026-04-30T06:44:58.616432+00:00",
     "title": "What are the main events for today?"
+  },
+  "ca9179e851538322163ee167210d26ed": {
+    "message_id": 3283,
+    "pinned_at": "2026-04-30T09:02:18.801463+00:00",
+    "title": "Eurozone April preliminary CPI +3.0% vs +2.9% y/y expected"
   }
 }
