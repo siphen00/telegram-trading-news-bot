@@ -1,9 +1,4 @@
 {
-  "fbb0fe80297f3538553006fa00e0eca3": {
-    "message_id": 4598,
-    "pinned_at": "2026-06-04T18:10:27.642031+00:00",
-    "title": "Nonfarm payrolls, unemployment rate, and earnings data due F"
-  },
   "c2f15521107fa138275abe36493719db": {
     "message_id": 4605,
     "pinned_at": "2026-06-04T21:57:57.483938+00:00",
@@ -18,5 +13,10 @@
     "message_id": 4619,
     "pinned_at": "2026-06-05T10:12:24.805744+00:00",
     "title": "What are analysts expecting from the US jobs report later to"
+  },
+  "1188b5814e434b5d1c42e1cf70a7164b": {
+    "message_id": 4637,
+    "pinned_at": "2026-06-05T18:14:17.357400+00:00",
+    "title": "Hot jobs report puts Fed cuts further out of reach as Chair "
   }
 }
