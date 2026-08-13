@@ -1,9 +1,4 @@
 {
-  "cbece1fc650312b1a42885177fc87283": {
-    "message_id": 7021,
-    "pinned_at": "2026-08-12T12:08:36.637643+00:00",
-    "title": "Gold prices today, Wednesday, August 12, 2026: Holding over "
-  },
   "273a91f46b6b0145c84a11ed06dd321a": {
     "message_id": 7023,
     "pinned_at": "2026-08-12T13:45:03.954434+00:00",
@@ -28,5 +23,10 @@
     "message_id": 7060,
     "pinned_at": "2026-08-13T06:53:26.476223+00:00",
     "title": "What are the main events for today?"
+  },
+  "8ec8b654f9426226528b8548d0738f81": {
+    "message_id": 7075,
+    "pinned_at": "2026-08-13T12:27:57.137832+00:00",
+    "title": "Gold prices today, Thursday, August 13, 2026: Gold up nearly"
   }
 }
